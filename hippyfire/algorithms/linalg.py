@@ -13,6 +13,7 @@
 # terms of the GNU General Public License (as published by the Free
 # Software Foundation) version 2.0 dated June 1991.
 
+import firedrake as fd
 from pyop2 import op2
 from firedrake.petsc import PETSc
 
@@ -21,4 +22,9 @@ import numpy as np
 
 
 def Transpose(A):
-    pass
+    a = A.form                  # extract UFL form of matrix
+    u, v = a.arguments()        # extract trial and test functions
+    temp = u
+    a_new = fd.replace(a, {u : v, v : temp}) # creating transposed bilinear form
+    AT = fd.assemble(a_new)
+    return AT
