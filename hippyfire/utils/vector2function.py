@@ -18,5 +18,6 @@ from firedrake import Function
 def vector2Function(x, vh, **kwargs):
 
     fun = Function(Vh, **kwargs)
-    #fun.vector().zero NEED TO ASK
+    fun.vector().assign(0.0)
     fun.vector().axpy(1., x)
+    return fun

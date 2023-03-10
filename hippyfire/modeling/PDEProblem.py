@@ -18,7 +18,7 @@ import firedrake as fd
 import ufl
 from .variables import STATE, PARAMETER, ADJOINT
 from ..algorithms.linalg import Transpose 
-from ..algorithms.linSolvers import PETScLUSolver
+from ..algorithms.linSolvers import CreateSolver
 from ..utils.vector2function import vector2Function
 
 class PDEProblem(object):
@@ -124,7 +124,6 @@ class PDEVariationalProblem(PDEProblem):
         self.Wmu = None
         self.Wmm = None
         self.Wuu = None
-        
         self.solver = None
         self.solver_fwd_inc = None
         self.solver_adj_inc = None
@@ -134,6 +133,7 @@ class PDEVariationalProblem(PDEProblem):
                         "adjoint":0 ,
                         "incremental_forward":0,
                         "incremental_adjoint":0}
+
     def generate_state(self):
         """ Return a vector in the shape of the state. """
         return fd.Function(self.Vh[STATE]).vector()
@@ -152,26 +152,31 @@ class PDEVariationalProblem(PDEProblem):
         Given :math:`m`, find :math:`u` such that
         
             .. math:: \\delta_p F(u, m, p;\\hat{p}) = 0,\\quad \\forall \\hat{p}."""
+        # Firedrake solver requires an operator A to be defined for a solver
+        if self.A is None:
+            self.A = fd.assemble(fd.inner(fd.TestFunction(self.Vh),
+                                          fd.TrialFunction(self.Vh)) * fd.dx)
         self.n_calls["forward"] += 1
         if self.solver is None:
             self.solver = self._createLUSolver()
         if self.is_fwd_linear:
-            u = fd.ufl_expr.TrialFunction(self.Vh[STATE])
+            u = fd.TrialFunction(self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
-            p = fd.ufl_expr.TestFunction(self.Vh[ADJOINT])
+            p = fd.TestFunction(self.Vh[ADJOINT])
             res_form = self.varf_handler(u, m, p)
             A_form = ufl.lhs(res_form)
             b_form = ufl.rhs(res_form)
-            A, b = fd.assemble.assemble(A_form, b_form, bcs=self.bc)
-            self.solver.set_operator(A)
+            A = fd.assemble(A_form, bcs=self.bc)
+            b = fd.assemble(b_form, bcs=self.bc)
+            self.solver.operator(A)
             self.solver.solve(state, b)
         else:
             u = vector2Function(x[STATE], self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
-            p = fd.ufl_expr.TestFunction(self.Vh[ADJOINT])
+            p = fd.TestFunction(self.Vh[ADJOINT])
             res_form = self.varf_handler(u, m, p)
-            fd.solving.solve(res_form == 0, u, self.bc)
-            # state.zero()
+            fd.solve(res_form == 0, u, bcs=self.bc)
+            state.vector().assign(0.0)
             state.axpy(1., u.vector())
         
     def solveAdj(self, adj, x, adj_rhs):
@@ -187,12 +192,13 @@ class PDEVariationalProblem(PDEProblem):
         u = vector2Function(x[STATE], self.Vh[STATE])
         m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
         p = fd.Function(self.Vh[ADJOINT])
-        du = fd.ufl_expr.TestFunction(self.Vh[STATE])
-        dp = fd.ufl_expr.TrialFunction(self.Vh[ADJOINT])
+        du = fd.TestFunction(self.Vh[STATE])
+        dp = fd.TrialFunction(self.Vh[ADJOINT])
         varf = self.varf_handler(u, m, p)
-        adj_form = dl.derivative( dl.derivative(varf, u, du), p, dp )
-        Aadj, dummy = dl.assemble_system(adj_form, ufl.inner(u,du)*ufl.dx, self.bc0)
-        self.solver.set_operator(Aadj)
+        adj_form = fd.derivative( fd.derivative(varf, u, du), p, dp )
+        Aadj= fd.assemble(adj_form, bcs=self.bc0)
+        dummy = fd.assemble(fd.inner(u , du) * fd.dx, bcs=self.bc0)
+        self.solver.operator(Aadj)
         self.solver.solve(adj, adj_rhs)
      
     def evalGradientParameter(self, x, out):
@@ -200,10 +206,10 @@ class PDEVariationalProblem(PDEProblem):
         u = vector2Function(x[STATE], self.Vh[STATE])
         m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
         p = vector2Function(x[ADJOINT], self.Vh[ADJOINT])
-        dm = dl.TestFunction(self.Vh[PARAMETER])
+        dm = fd.TestFunction(self.Vh[PARAMETER])
         res_form = self.varf_handler(u, m, p)
-        out.zero()
-        dl.assemble( dl.derivative(res_form, m, dm), tensor=out)
+        out.vector().assign(0.0)
+        fd.assemble(fd.derivative(res_form, m, dm), tensor=out)
          
     def setLinearizationPoint(self,x, gauss_newton_approx):
         """ Set the values of the state and parameter
@@ -215,7 +221,7 @@ class PDEVariationalProblem(PDEProblem):
         
         g_form = [None,None,None]
         for i in range(3):
-            g_form[i] = dl.derivative(f_form, x_fun[i])
+            g_form[i] = fd.derivative(f_form, x_fun[i])
             
         self.A, dummy = dl.assemble_system(dl.derivative(g_form[ADJOINT],x_fun[STATE]), g_form[ADJOINT], self.bc0)
         self.At, dummy = dl.assemble_system(dl.derivative(g_form[STATE],x_fun[ADJOINT]),  g_form[STATE], self.bc0)
@@ -310,7 +316,7 @@ class PDEVariationalProblem(PDEProblem):
         if i in [STATE,ADJOINT]:
             [bc.apply(out) for bc in self.bc0]
                    
-    def _createLUSolver(self):   
-        return PETScLUSolver(self.Vh[STATE].mesh().mpi_comm() )
-
-        
+    def _createLUSolver(self):
+        # Can be used to create different solvers by specifying ksp and pre
+        solver = CreateSolver(self.A, self.Vh[STATE].mesh().mpi_comm() )
+        return solver
