@@ -15,9 +15,9 @@
 
 from firedrake import Function
 
-def vector2Function(x, vh, **kwargs):
+def vector2Function(x, Vh, **kwargs):
 
     fun = Function(Vh, **kwargs)
-    fun.vector().assign(0.0)
-    fun.vector().axpy(1., x)
+    fun =  fun.vector().assign(0.0)
+    fun = fun.vector().axpy(1., x)
     return fun

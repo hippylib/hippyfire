@@ -195,9 +195,9 @@ class PDEVariationalProblem(PDEProblem):
         du = fd.TestFunction(self.Vh[STATE])
         dp = fd.TrialFunction(self.Vh[ADJOINT])
         varf = self.varf_handler(u, m, p)
-        adj_form = fd.derivative( fd.derivative(varf, u, du), p, dp )
+        adj_form = fd.derivative(fd.derivative(varf, u, du), p, dp )
         Aadj= fd.assemble(adj_form, bcs=self.bc0)
-        dummy = fd.assemble(fd.inner(u , du) * fd.dx, bcs=self.bc0)
+        # dummy = fd.assemble(fd.inner(u , du) * fd.dx, bcs=self.bc0)
         self.solver.operator(Aadj)
         self.solver.solve(adj, adj_rhs)
      
@@ -223,33 +223,44 @@ class PDEVariationalProblem(PDEProblem):
         for i in range(3):
             g_form[i] = fd.derivative(f_form, x_fun[i])
             
-        self.A, dummy = dl.assemble_system(dl.derivative(g_form[ADJOINT],x_fun[STATE]), g_form[ADJOINT], self.bc0)
-        self.At, dummy = dl.assemble_system(dl.derivative(g_form[STATE],x_fun[ADJOINT]),  g_form[STATE], self.bc0)
-        self.C = dl.assemble(dl.derivative(g_form[ADJOINT],x_fun[PARAMETER]))
-        [bc.zero(self.C) for bc in self.bc0]
-                
+        self.A = fd.assemble(fd.derivative(g_form[ADJOINT],x_fun[STATE]), self.bc0)
+        self.At  = fd.assemble(fd.derivative(g_form[STATE],x_fun[ADJOINT]), self.bc0)
+        self.C = fd.assemble(fd.derivative(g_form[ADJOINT],x_fun[PARAMETER]))
+        # [bc.zero(self.C) for bc in self.bc0]
+        for bc in self.bc0:
+            bc.homogenize()
+            bc.apply(self.C)
+
         if self.solver_fwd_inc is None:
             self.solver_fwd_inc = self._createLUSolver()
             self.solver_adj_inc = self._createLUSolver()
         
-        self.solver_fwd_inc.set_operator(self.A)
-        self.solver_adj_inc.set_operator(self.At)
+        self.solver_fwd_inc.operator(self.A)
+        self.solver_adj_inc.operator(self.At)
 
         if gauss_newton_approx:
             self.Wuu = None
             self.Wmu = None
             self.Wmm = None
         else:
-            self.Wuu = dl.assemble(dl.derivative(g_form[STATE],x_fun[STATE]))
-            [bc.zero(self.Wuu) for bc in self.bc0]
+            self.Wuu = fd.assemble(fd.derivative(g_form[STATE],x_fun[STATE]))
+            for bc in self.bc0:
+                bc.homogenize()
+                bc.apply(self.Wuu)
             Wuu_t = Transpose(self.Wuu)
-            [bc.zero(Wuu_t) for bc in self.bc0]
+            for bc in self.bc0:
+                bc.homogenize()
+                bc.apply(Wuu_t)
+            # [bc.zero(Wuu_t) for bc in self.bc0]
             self.Wuu = Transpose(Wuu_t)
-            self.Wmu = dl.assemble(dl.derivative(g_form[PARAMETER],x_fun[STATE]))
+            self.Wmu = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[STATE]))
             Wmu_t = Transpose(self.Wmu)
-            [bc.zero(Wmu_t) for bc in self.bc0]
+            for bc in self.bc0:
+                bc.homogenize()
+                bc.apply(Wmu_t)
+            # [bc.zero(Wmu_t) for bc in self.bc0]
             self.Wmu = Transpose(Wmu_t)
-            self.Wmm = dl.assemble(dl.derivative(g_form[PARAMETER],x_fun[PARAMETER]))
+            self.Wmm = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[PARAMETER]))
         
     def solveIncremental(self, out, rhs, is_adj):
         """ If :code:`is_adj == False`:
@@ -288,30 +299,30 @@ class PDEVariationalProblem(PDEProblem):
         
         if i >= j:
             if KKT[i,j] is None:
-                out.zero()
+                out.vector().assign(0.0)
             else:
                 KKT[i,j].mult(dir, out)
         else:
             if KKT[j,i] is None:
-                out.zero()
-            else:
-                KKT[j,i].transpmult(dir, out)
+                out.vector().assign(0.0)
+            # else:
+            #     KKT[j,i].transpmult(dir, out)
                 
     def apply_ijk(self,i,j,k, x, jdir, kdir, out):
         x_fun = [vector2Function(x[ii], self.Vh[ii]) for ii in range(3)]
-        idir_fun = dl.TestFunction(self.Vh[i])
+        idir_fun = fd.TestFunction(self.Vh[i])
         jdir_fun = vector2Function(jdir, self.Vh[j])
         kdir_fun = vector2Function(kdir, self.Vh[k])
         
         res_form = self.varf_handler(*x_fun)
-        form = dl.derivative(
-               dl.derivative(
-               dl.derivative(res_form, x_fun[i], idir_fun),
+        form = fd.derivative(
+               fd.derivative(
+               fd.derivative(res_form, x_fun[i], idir_fun),
                x_fun[j], jdir_fun),
                x_fun[k], kdir_fun)
         
-        out.zero()
-        dl.assemble(form, tensor=out)
+        out.vector().assign(0.0)
+        fd.assemble(form, tensor=out)
         
         if i in [STATE,ADJOINT]:
             [bc.apply(out) for bc in self.bc0]

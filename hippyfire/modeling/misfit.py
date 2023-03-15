@@ -13,7 +13,8 @@
 # terms of the GNU General Public License (as published by the Free
 # Software Foundation) version 2.0 dated June 1991.
 
-import dolfin as dl
+import firedrake as fd
+# import dolfin as dl
 import ufl
 from .pointwiseObservation import assemblePointwiseObservation
 from .variables import STATE, PARAMETER
