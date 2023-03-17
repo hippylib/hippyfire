@@ -23,7 +23,7 @@ import numpy as np
 
 def Transpose(A):
     a = A.form                  # extract UFL form of matrix
-    u, v = a.arguments()        # extract trial and test functions
+    v, u = a.arguments()        # extract trial and test functions
     temp = u
     a_new = fd.replace(a, {u : v, v : temp}) # creating transposed bilinear form
     AT = fd.assemble(a_new)
