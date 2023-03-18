@@ -28,3 +28,8 @@ def Transpose(A):
     a_new = fd.replace(a, {u : v, v : temp}) # creating transposed bilinear form
     AT = fd.assemble(a_new)
     return AT
+
+def innerFire(x, y):            # custom function to dot two vectors defined on diff. function spaces
+    arr = x.get_local() * y.get_local()
+    x.set_local(arr)
+    return x
