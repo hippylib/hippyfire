@@ -13,11 +13,12 @@
 # terms of the GNU General Public License (as published by the Free
 # Software Foundation) version 2.0 dated June 1991.
 
-from firedrake import Function
+import firedrake as fd
 
-def vector2Function(x, Vh, **kwargs):
-
-    fun = Function(Vh, **kwargs)
-    fun =  fun.vector().assign(0.0)
-    fun = fun.vector().axpy(1., x)
+def vector2Function(x, Vh):
+    # pass
+    fun = fd.Function(Vh)
+    fun.vector().assign(0.0)
+    # fun.vector().axpy(1., x)          # axpy throws a compilation error.
+    fun.vector().set_local(x.get_local())
     return fun
