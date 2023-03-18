@@ -16,10 +16,10 @@
 # import dolfin as dl
 import firedrake as fd
 import ufl
-from .variables import STATE, PARAMETER, ADJOINT
-from ..algorithms.linalg import Transpose 
-from ..algorithms.linSolvers import CreateSolver
-from ..utils.vector2function import vector2Function
+from variables import STATE, PARAMETER, ADJOINT
+from linalg import Transpose
+from linSolvers import CreateSolver
+from vector2function import vector2Function
 
 class PDEProblem(object):
     """ Consider the PDE problem:
@@ -145,7 +145,7 @@ class PDEVariationalProblem(PDEProblem):
     def init_parameter(self, m):
         """ Initialize the parameter. """
         dummy = self.generate_parameter()
-        m.init( dummy.mpi_comm(), dummy.local_range() )
+        m.init( dummy.comm, dummy.local_range() )
     
     def solveFwd(self, state, x):
         """ Solve the possibly nonlinear forward problem:
@@ -153,9 +153,9 @@ class PDEVariationalProblem(PDEProblem):
         
             .. math:: \\delta_p F(u, m, p;\\hat{p}) = 0,\\quad \\forall \\hat{p}."""
         # Firedrake solver requires an operator A to be defined for a solver
-        if self.A is None:
-            self.A = fd.assemble(fd.inner(fd.TestFunction(self.Vh),
-                                          fd.TrialFunction(self.Vh)) * fd.dx)
+        if self.A is None:      # confirm if the index for self.Vh is correct
+            self.A = fd.assemble(fd.inner(fd.TestFunction(self.Vh[STATE]),
+                                          fd.TrialFunction(self.Vh[STATE])) * fd.dx)
         self.n_calls["forward"] += 1
         if self.solver is None:
             self.solver = self._createLUSolver()
@@ -177,7 +177,8 @@ class PDEVariationalProblem(PDEProblem):
             res_form = self.varf_handler(u, m, p)
             fd.solve(res_form == 0, u, bcs=self.bc)
             state.vector().assign(0.0)
-            state.axpy(1., u.vector())
+            # state.axpy(1., u.vector())    # axpy in fd gives compilation error
+            state.vector().set_local(u.vector().get_local())
         
     def solveAdj(self, adj, x, adj_rhs):
         """ Solve the linear adjoint problem: 
@@ -329,5 +330,5 @@ class PDEVariationalProblem(PDEProblem):
                    
     def _createLUSolver(self):
         # Can be used to create different solvers by specifying ksp and pre
-        solver = CreateSolver(self.A, self.Vh[STATE].mesh().mpi_comm() )
+        solver = CreateSolver(self.A, self.Vh[STATE].mesh().comm() )
         return solver
