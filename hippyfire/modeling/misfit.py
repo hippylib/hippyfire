@@ -14,12 +14,13 @@
 # Software Foundation) version 2.0 dated June 1991.
 
 import firedrake as fd
-# import dolfin as dl
 import ufl
-from .pointwiseObservation import assemblePointwiseObservation
+# from .pointwiseObservation import assemblePointwiseObservation
 from .variables import STATE, PARAMETER
 from ..algorithms.linalg import Transpose
+from ..algorithms.linalg import innerFire
 import numpy as np
+from petsc4py import PETSc
 
 class Misfit(object):
     """
@@ -62,144 +63,8 @@ class Misfit(object):
         """
         raise NotImplementedError("Child class should implement method apply_ij")
         
-class PointwiseStateObservation(Misfit):
-    """
-    This class implements pointwise state observations at given locations.
-    It assumes that the state variable is a scalar function.
-    """
-    def __init__(self, Vh, obs_points):
-        """
-        Constructor:
 
-            :code:`Vh` is the finite element space for the state variable
-            
-            :code:`obs_points` is a 2D array number of points by geometric dimensions that stores \
-            the location of the observations.
-        """
-        self.B = assemblePointwiseObservation(Vh, obs_points)
-        self.d = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.d, 0)
-        self.Bu = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.Bu, 0)
-        self.noise_variance = None
-        
-    def cost(self,x):
-        if self.noise_variance is None: 
-            raise ValueError("Noise Variance must be specified")
-        elif self.noise_variance == 0:
-            raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
-        self.B.mult(x[STATE], self.Bu)
-        self.Bu.axpy(-1., self.d)
-        return (.5/self.noise_variance)*self.Bu.inner(self.Bu)
-    
-    def grad(self, i, x, out):
-        if self.noise_variance is None:
-            raise ValueError("Noise Variance must be specified")
-        elif self.noise_variance == 0:
-            raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
-        if i == STATE:
-            self.B.mult(x[STATE], self.Bu)
-            self.Bu.axpy(-1., self.d)
-            self.B.transpmult(self.Bu, out)
-            out *= (1./self.noise_variance)
-        elif i == PARAMETER:
-            out.zero()
-        else:
-            raise IndexError()
-                
-    def setLinearizationPoint(self,x, gauss_newton_approx=False):
-        # The cost functional is already quadratic. Nothing to be done here
-        return
-       
-    def apply_ij(self,i,j,dir,out):
-        if self.noise_variance is None:
-            raise ValueError("Noise Variance must be specified")
-        elif self.noise_variance == 0:
-            raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
-        if i == STATE and j == STATE:
-            self.B.mult(dir, self.Bu)
-            self.B.transpmult(self.Bu, out)
-            out *= (1./self.noise_variance)
-        else:
-            out.zero()
-            
-            
-class MultPointwiseStateObservation(Misfit):
-    """
-    This class implements pointwise state observations at given locations.
-    A multiplicative Gamma(M,M) noise model is assumed
-    """
-    def __init__(self, Vh, obs_points, Mpar):
-        """
-        Constructor:
 
-            :code:`Vh` is the finite element space for the state variable
-            
-            :code:`obs_points` is a 2D array number of points by geometric dimensions that stores \
-            the location of the observations.
-        """
-        self.B = assemblePointwiseObservation(Vh, obs_points)
-        self.d = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.d, 0)
-        self.Bu = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.Bu, 0)
-        
-        self.Bu_lin = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.Bu_lin, 0)
-        
-        self.help = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.help, 0)
-
-        
-        self.Mpar = Mpar
-        
-        self.ones = dl.Vector(self.B.mpi_comm())
-        self.B.init_vector(self.ones, 0)
-        self.ones.set_local(np.ones_like(self.ones.get_local()))
-        self.ones.apply("")
-        
-    def cost(self,x):
-        self.B.mult(x[STATE], self.Bu)
-        Bu_local = self.Bu.get_local()
-        self.help.set_local( np.log( Bu_local ) + self.d.get_local()/Bu_local )
-        self.help.apply("")
-        
-        return self.Mpar* self.help.inner(self.ones)
-    
-    def grad(self, i, x, out):
-        out.zero()
-        if i == STATE:
-            self.B.mult(x[STATE], self.Bu)
-            Bu_local = self.Bu.get_local()
-            self.help.zero()
-            self.help.set_local( np.ones_like(Bu_local)/Bu_local - self.d.get_local()/(Bu_local*Bu_local) )
-            self.help.apply("")
-            self.B.transpmult(self.help, out)
-            out *= self.Mpar
-        elif i == PARAMETER:
-            out.zero()
-        else:
-            raise IndexError()
-                
-    def setLinearizationPoint(self,x, gauss_newton_approx=False):
-        self.B.mult(x[STATE], self.Bu_lin)
-        # The cost functional is already quadratic. Nothing to be done here
-        return
-       
-    def apply_ij(self,i,j,dir,out):
-        out.zero()
-        if i == STATE and j == STATE:
-            self.B.mult(dir, self.Bu)
-            Bdir_local = self.Bu.get_local()
-            Bu_lin_local = self.Bu_lin.get_local()
-            self.help.zero()
-            self.help.set_local( - Bdir_local*np.power(Bu_lin_local, -2) + 2.*self.d.get_local()*Bdir_local*np.power(Bu_lin_local, -3))
-            self.help.apply("")
-            self.B.transpmult(self.help, out)
-            out *= self.Mpar
-        else:
-            out.zero()
-            
 class ContinuousStateObservation(Misfit):
     """
     This class implements continuous state observations in a 
@@ -221,24 +86,33 @@ class ContinuousStateObservation(Misfit):
             otherwise the integrand specified in the given form will be used.
         """
         if form is None:
-            u, v = dl.TrialFunction(Vh), dl.TestFunction(Vh)
-            self.W = dl.assemble(ufl.inner(u,v)*dX)
-        else:
-            self.W = dl.assemble( form )
-           
+            u, v = fd.TrialFunction(Vh), fd.TestFunction(Vh)
+            # self.W = fd.assemble(fd.inner(u, v) * fd.dx)
+            form = fd.inner(u, v) * dX
+        # else:
+        #     self.W = fd.assemble( form )
+
         if bcs is None:
             bcs  = []
-        if isinstance(bcs, dl.DirichletBC):
+        if isinstance(bcs, fd.bcs.DirichletB):
             bcs = [bcs]
             
         if len(bcs):
-            Wt = Transpose(self.W)
-            [bc.zero(Wt) for bc in bcs]
+            v, u = form.arguments()
+            temp = u
+            form_transpose = fd.replace(form, {u : v, v : temp})
+            Wt = fd.assemble(form_transpose, bcs=bcs)
+            # Wt = Transpose(self.W)
+            # [bc.apply(Wt) for bc in bcs]
             self.W = Transpose(Wt)
-            [bc.zero(self.W) for bc in bcs]
-                
-        self.d = dl.Vector(self.W.mpi_comm())
-        self.W.init_vector(self.d,1)
+            form_new = self.W.form
+            self.W = fd.assemble(form_new, bcs=bcs)
+            # [bc.apply(self.W) for bc in bcs]
+        # create a vector compatible for multiplication with W
+        v1, u1 = (W.form).arguments()
+        self.d = fd.Function(v1.function_space()).vector() # self.d #rows = self.W #cols
+        # self.d = dl.Vector(self.W.mpi_comm())
+        # self.W.init_vector(self.d,1)
         self.noise_variance = None
         
     def cost(self,x):
@@ -248,10 +122,14 @@ class ContinuousStateObservation(Misfit):
             raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         r = self.d.copy()
         r.axpy(-1., x[STATE])
-        Wr = dl.Vector(self.W.mpi_comm())
-        self.W.init_vector(Wr,0)
-        self.W.mult(r,Wr)
-        return r.inner(Wr)/(2.*self.noise_variance)
+        v1, u1 = (W.form).arguments()
+        Wr = fd.Function(u1.function_space()).vector() # self.d #rows = self.W #cols
+        # Wr = dl.Vector(self.W.mpi_comm())
+        # self.W.init_vector(Wr,0)
+        self.W.matVecMult(r,Wr)
+        res = innerFire(r, Wr)
+        return res.set_local(res.get_local() / (2. * self.noise_variance))
+        # return r.inner(Wr)/(2.*self.noise_variance)
     
     def grad(self, i, x, out):
         if self.noise_variance is None:
@@ -259,10 +137,10 @@ class ContinuousStateObservation(Misfit):
         elif self.noise_variance == 0:
             raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         if i == STATE:
-            self.W.mult(x[STATE]-self.d, out)
-            out *= (1./self.noise_variance)
+            self.W.matVecMult(x[STATE].axpy(-1, self.d), out)
+            out.set_local((1. / self.noise_variance) * out.get_local())
         elif i == PARAMETER:
-            out.zero()
+            out.vector().assign(0.0)
         else:
             raise IndexError()
         
@@ -276,63 +154,15 @@ class ContinuousStateObservation(Misfit):
         elif self.noise_variance == 0:
             raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         if i == STATE and j == STATE:
-            self.W.mult(dir, out)
-            out *= (1./self.noise_variance)
+            self.W.matVecMult(dir, out)
+            out.set_local((1. / self.noise_variance) * out.get_local())
+            # out *= (1./self.noise_variance)
         else:
-            out.zero() 
+            out.vector().assign(0.0)
 
-
-class MultiStateMisfit(Misfit):
-    def __init__(self, misfits):
-        self.nmisfits = len(misfits)
-        self.misfits = misfits
-        
-    def append(self, misfit):
-        self.nmisfits += 1
-        self.misfits.append(misfit)
-
-    def cost(self,x):
-        u, m, p = x
-        c = 0.
-        for i in range(self.nmisfits):
-            c += self.misfits[i].cost([ u.data[i], m, None ] )
-        return c
-    
-    def grad(self, i, x, out):
-        out.zero()
-        u, m, p = x
-        if i == STATE:
-            for ii in range(self.nmisfits):
-                self.misfits[ii].grad(i, [ u.data[ii], m, None ], out.data[ii] )
-        else:
-            tmp = out.copy()
-            for ii in range(self.nmisfits):
-                self.misfits[ii].grad(i, [ u.data[ii], m, None ], tmp )
-                out.axpy(1., tmp)
-        
-    def setLinearizationPoint(self,x, gauss_newton_approx=False):
-        u, m, p = x
-        for ii in range(self.nmisfits):
-            self.misfits[ii].setLinearizationPoint([ u.data[ii], m, None ], gauss_newton_approx)
-        
-       
-    def apply_ij(self,i,j,dir,out):
-        out.zero()
-        if i == STATE and j == STATE:
-            for s in range(self.nmisfits):
-                self.misfits[s].apply_ij(i,j,dir.data[s],out.data[s])
-        elif i == STATE and j == PARAMETER:
-            for s in range(self.nmisfits):
-                self.misfits[s].apply_ij(i,j,dir,out.data[s])
-        elif i == PARAMETER and j == STATE:
-            tmp = out.copy()
-            for s in range(self.nmisfits):
-                self.misfits[s].apply_ij(i,j,dir.data[s],tmp)
-                out.axpy(1., tmp)
-        elif i == PARAMETER and j == PARAMETER:
-            tmp = out.copy()
-            for s in range(self.nmisfits):
-                self.misfits[s].apply_ij(i,j,dir,tmp)
-                out.axpy(1., tmp)
-        else:
-            raise IndexError
+    def matVecMult(self, x, y):
+        Wpet = self.W.M.handle
+        xpet = fd.as_backend_type(x).vec()
+        ypet = fd.as_backend_type(y).vec()
+        Wpet.mult(xpet, ypet)
+        y[:] = ypet
