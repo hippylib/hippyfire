@@ -121,14 +121,16 @@ class ContinuousStateObservation(Misfit):
         elif self.noise_variance == 0:
             raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         r = self.d.copy()
-        r.axpy(-1., x[STATE])
+        # r.axpy(-1., x[STATE])
+        r.set_local(r.get_local() + (-1. * x[STATE].get_local()))
         v1, u1 = (W.form).arguments()
-        Wr = fd.Function(u1.function_space()).vector() # self.d #rows = self.W #cols
+        Wr = fd.Function(u1.function_space()).vector()
         # Wr = dl.Vector(self.W.mpi_comm())
         # self.W.init_vector(Wr,0)
         self.W.matVecMult(r,Wr)
         res = innerFire(r, Wr)
-        return res.set_local(res.get_local() / (2. * self.noise_variance))
+        res.set_local(res.get_local() / (2. * self.noise_variance))
+        return res
         # return r.inner(Wr)/(2.*self.noise_variance)
     
     def grad(self, i, x, out):
@@ -137,7 +139,9 @@ class ContinuousStateObservation(Misfit):
         elif self.noise_variance == 0:
             raise  ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         if i == STATE:
-            self.W.matVecMult(x[STATE].axpy(-1, self.d), out)
+            res = x[STATE]
+            res.set_local(x[STATE].get_local() - self.d.get_local())
+            self.W.matVecMult(res, out)
             out.set_local((1. / self.noise_variance) * out.get_local())
         elif i == PARAMETER:
             out.vector().assign(0.0)
