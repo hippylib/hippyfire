@@ -18,6 +18,8 @@ import firedrake as fd
 import ufl
 import math
 from .variables import STATE, PARAMETER, ADJOINT
+from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from petsc4py import PETSc
 
 class Model:
     """

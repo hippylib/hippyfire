@@ -17,9 +17,9 @@
 import firedrake as fd
 import ufl
 import numpy as np
-import scipy.linalg as scila
+# import scipy.linalg as scila
 import math
-
+from petsc4py import PETSc
 import numbers
 
 # from ..algorithms.linalg import MatMatMult, get_diagonal, amg_method, estimate_diagonal_inv2, Solver2Operator, Operator2Solver
@@ -29,6 +29,8 @@ import numbers
 # from ..algorithms.randomizedEigensolver import doublePass, doublePassG
 
 # from ..utils.random import parRandom
+from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from ..algorithms.linSolvers import CreateSolver
 from ..utils.vector2function import vector2Function
 
 # from .expression import ExpressionModule

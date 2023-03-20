@@ -17,8 +17,8 @@ import firedrake as fd
 import ufl
 # from .pointwiseObservation import assemblePointwiseObservation
 from .variables import STATE, PARAMETER
-from ..algorithms.linalg import Transpose
-from ..algorithms.linalg import innerFire
+from ..algorithms.linalg import Transpose, innerFire, matVecMult
+
 import numpy as np
 from petsc4py import PETSc
 
@@ -149,7 +149,7 @@ class ContinuousStateObservation(Misfit):
         # The cost functional is already quadratic. Nothing to be done here
         return
                    
-    def apply_ij(self,i,j,dir,out):
+    def apply_ij(self, i, j, dir, out):
         if self.noise_variance is None:
             raise ValueError("Noise Variance must be specified")
         elif self.noise_variance == 0:

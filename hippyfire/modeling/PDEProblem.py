@@ -16,10 +16,11 @@
 # import dolfin as dl
 import firedrake as fd
 import ufl
-from variables import STATE, PARAMETER, ADJOINT
-from linalg import Transpose
-from linSolvers import CreateSolver
-from vector2function import vector2Function
+from petsc4py import PETSc
+from .variables import STATE, PARAMETER, ADJOINT
+from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from ..algorithms.linSolvers import CreateSolver
+from ..utils.vector2function import vector2Function
 
 class PDEProblem(object):
     """ Consider the PDE problem:
