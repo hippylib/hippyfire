@@ -58,7 +58,7 @@ class _Prior:
     """ 
 
         
-    def cost(self,m):
+    def cost(self, m):
         d = self.mean.copy()    # confirm if this makes sense. mean not defined
         # d.axpy(-1., m)        # axpy gives a compilation error
         d.set_local(d.get_local() - (1. * m.get_local()))
@@ -66,17 +66,16 @@ class _Prior:
         # self.init_vector(Rd,0)
         v1, u1 = (self.R.form).arguments()
         Rd = fd.Function(u1.function_space()).vector()
-        self.R.matVecMult(d,Rd)
-        res = innerFire(Rd, d)
-        # return .5*Rd.inner(d)
-        res.set_local(res.get_local() * .5)
-        return res
+        matVecMult(self.R, d, Rd)
+        return .5 * innerFire(Rd, d)
+
+
 
     def grad(self,m, out):
         d = m.copy()
         # d.axpy(-1., self.mean)
         d.set_local(d.get_local() + (-1. * self.mean.get_local()))
-        self.R.matVecMult(d,out)
+        matVecMult(self.R, d, out)
 
     def init_vector(self,x,dim):
         raise NotImplementedError("Child class should implement method init_vector")
@@ -114,9 +113,9 @@ class _BilaplacianR:
         return self.A.mpi_comm()
         
     def mult(self,x,y):         # confirm naming of the methods in this class
-        self.A.matVecMult(x, self.help1)
+        matVecMult(self.A, x, self.help1)
         self.Msolver.solve(self.help2, self.help1)
-        self.A.matVecMult(self.help2, y)
+        matVecMult(self.A, self.help2, y)
         
 class _BilaplacianRsolver():
     """
@@ -140,7 +139,7 @@ class _BilaplacianRsolver():
 
     def solve(self,x,b):
         nit = self.Asolver.solve(self.help1, b)
-        self.M.matVecMult(self.help1, self.help2)
+        matVecMult(self.M, self.help1, self.help2)
         nit += self.Asolver.solve(x, self.help2)
         return nit
 
