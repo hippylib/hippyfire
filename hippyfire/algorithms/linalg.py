@@ -30,6 +30,14 @@ def Transpose(A):
     return AT
 
 def innerFire(x, y):            # custom function to dot two vectors defined on diff. function spaces
-    arr = x.get_local() * y.get_local()
-    x.set_local(arr)
-    return x
+    tmp = 0
+    for i in range(x.size()):
+        tmp += x[i] * y[i]
+    return tmp
+
+def matVecMult(W, x, y):
+        Wpet = W.M.handle
+        xpet = fd.as_backend_type(x).vec()
+        ypet = fd.as_backend_type(y).vec()
+        Wpet.mult(xpet, ypet)
+        y[:] = ypet
