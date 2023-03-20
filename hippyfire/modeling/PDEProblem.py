@@ -212,7 +212,7 @@ class PDEVariationalProblem(PDEProblem):
         out.vector().assign(0.0)
         fd.assemble(fd.derivative(res_form, m, dm), tensor=out)
          
-    def setLinearizationPoint(self,x, gauss_newton_approx):
+    def setLinearizationPoint(self, x, gauss_newton_approx):
         """ Set the values of the state and parameter
             for the incremental forward and adjoint solvers. """
             
@@ -220,7 +220,7 @@ class PDEVariationalProblem(PDEProblem):
         
         f_form = self.varf_handler(*x_fun)
         
-        g_form = [None,None,None]
+        g_form = [None, None, None]
         for i in range(3):
             g_form[i] = fd.derivative(f_form, x_fun[i])
             
@@ -302,7 +302,7 @@ class PDEVariationalProblem(PDEProblem):
             if KKT[i,j] is None:
                 out.vector().assign(0.0)
             else:
-                KKT[i,j].mult(dir, out)
+                matVecMult(KKT[i, j], dir, out)
         else:
             if KKT[j,i] is None:
                 out.vector().assign(0.0)

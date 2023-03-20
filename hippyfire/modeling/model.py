@@ -13,7 +13,9 @@
 # terms of the GNU General Public License (as published by the Free
 # Software Foundation) version 2.0 dated June 1991.
 
-import dolfin as dl
+# import dolfin as dl
+import firedrake as fd
+import ufl
 import math
 from .variables import STATE, PARAMETER, ADJOINT
 
@@ -79,8 +81,10 @@ class Model:
         """
         Reshape :code:`m` so that it is compatible with the parameter variable
         """
-        self.prior.init_vector(m,0)
-            
+        # self.prior.init_vector(m,0)
+        v1, u1 = (self.prior.form).arguments() # confirm if self.prior is a matrix. Seems off
+        m = fd.Function(u1.function_space()).vector()
+
     def cost(self, x):
         """
         Given the list :code:`x = [u,m,p]` which describes the state, parameter, and
@@ -93,7 +97,7 @@ class Model:
         """
         misfit_cost = self.misfit.cost(x)
         reg_cost = self.prior.cost(x[PARAMETER])
-        return [misfit_cost+reg_cost, reg_cost, misfit_cost]
+        return [misfit_cost + reg_cost, reg_cost, misfit_cost]
     
     def solveFwd(self, out, x):
         """
@@ -104,7 +108,7 @@ class Model:
             - :code:`out`: is the solution of the forward problem (i.e. the state) (Output parameters)
             - :code:`x = [u,m,p]` provides
 
-                1) the parameter variable :code:`m` for the solution of the forward problem
+                1) the parameter variable :code:`m` fnnor the solution of the forward problem
                 2) the initial guess :code:`u` if the forward problem is non-linear
         
                 .. note:: :code:`p` is not accessed.
@@ -130,7 +134,8 @@ class Model:
         self.n_adj_solve = self.n_adj_solve + 1
         rhs = self.problem.generate_state()
         self.misfit.grad(STATE, x, rhs)
-        rhs *= -1.
+        # rhs *= -1.
+        rhs.set_local(-1. * rhs.get_local())
         self.problem.solveAdj(out, x, rhs)
     
     def evalGradientParameter(self,x, mg, misfit_only=False):
@@ -148,14 +153,16 @@ class Model:
         tmp = self.generate_vector(PARAMETER)
         self.problem.evalGradientParameter(x, mg)
         self.misfit.grad(PARAMETER,x,tmp)
-        mg.axpy(1., tmp)
+        # mg.axpy(1., tmp)
+        mg.set_local(mg.get_local() + (1. * tmp))
         if not misfit_only:
             self.prior.grad(x[PARAMETER], tmp)
-            mg.axpy(1., tmp)
-        
+            # mg.axpy(1., tmp)
+            mg.set_local(mg.get_local() + (1. * tmp))
+
         self.prior.Msolver.solve(tmp, mg)
         #self.prior.Rsolver.solve(tmp, mg)
-        return math.sqrt(mg.inner(tmp))
+        return math.sqrt(innerFire(mg, tmp))
         
     
     def setPointForHessianEvaluations(self, x, gauss_newton_approx=False):
@@ -249,8 +256,9 @@ class Model:
         if not self.gauss_newton_approx:
             tmp = self.generate_vector(STATE)
             self.problem.apply_ij(STATE,STATE, du, tmp)
-            out.axpy(1., tmp)
-    
+            # out.axpy(1., tmp)
+            out.set_local(out.get_local() + (1. * tmp.get_local()))
+
     def applyWum(self, dm, out):
         """
         Apply the :math:`W_{um}` block of the Hessian to a (incremental) parameter variable.
@@ -264,13 +272,13 @@ class Model:
         .. note:: This routine assumes that :code:`out` has the correct shape.
         """
         if self.gauss_newton_approx:
-            out.zero()
+            out.vector().assign(0.0)
         else:
             self.problem.apply_ij(STATE,PARAMETER, dm, out)
             tmp = self.generate_vector(STATE)
             self.misfit.apply_ij(STATE,PARAMETER, dm, tmp)
-            out.axpy(1., tmp)
-
+            # out.axpy(1., tmp)
+            out.set_local(out.get_local() + (1. * tmp.get_local()))
     
     def applyWmu(self, du, out):
         """
@@ -285,13 +293,14 @@ class Model:
         .. note:: This routine assumes that :code:`out` has the correct shape.
         """
         if self.gauss_newton_approx:
-            out.zero()
+            out.vector().assign(0.0)
         else:
             self.problem.apply_ij(PARAMETER, STATE, du, out)
             tmp = self.generate_vector(PARAMETER)
             self.misfit.apply_ij(PARAMETER, STATE, du, tmp)
-            out.axpy(1., tmp)
-    
+            # out.axpy(1., tmp)
+            out.set_local(out.get_local() + (1. * tmp.get_local()))
+
     def applyR(self, dm, out):
         """
         Apply the regularization :math:`R` to a (incremental) parameter variable.
@@ -304,7 +313,7 @@ class Model:
         
         .. note:: This routine assumes that :code:`out` has the correct shape.
         """
-        self.prior.R.mult(dm, out)
+        matVecMult(self.prior.R, dm, out)
     
     def Rsolver(self):
         """
@@ -330,25 +339,26 @@ class Model:
         .. note:: This routine assumes that :code:`out` has the correct shape.
         """
         if self.gauss_newton_approx:
-            out.zero()
+            out.vector.assign(0.0)
         else:
             self.problem.apply_ij(PARAMETER,PARAMETER, dm, out)
             tmp = self.generate_vector(PARAMETER)
             self.misfit.apply_ij(PARAMETER,PARAMETER, dm, tmp)
-            out.axpy(1., tmp)
+            # out.axpy(1., tmp)
+            out.set_local(out.get_local() + (1. * tmp.get_local()))
             
     def apply_ij(self, i, j, d, out):
         if i == STATE and j == STATE:
-            self.applyWuu(d,out)
+            self.applyWuu(d, out)
         elif i == STATE and j == PARAMETER:
-            self.applyWum(d,out)
+            self.applyWum(d, out)
         elif i == PARAMETER and j == STATE:
             self.applyWmu(d, out)
         elif i == PARAMETER and j == PARAMETER:
-            self.applyWmm(d,out)
+            self.applyWmm(d, out)
         elif i == PARAMETER and j == ADJOINT:
-            self.applyCt(d,out)
+            self.applyCt(d, out)
         elif i == ADJOINT and j == PARAMETER:
-            self.applyC(d,out)
+            self.applyC(d, out)
         else:
             raise IndexError("apply_ij not allowed for i = {0}, j = {1}".format(i,j))
