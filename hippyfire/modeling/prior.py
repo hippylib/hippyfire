@@ -109,6 +109,7 @@ class _BilaplacianR:
     def init_vector(self,x, dim): # confirm this once
         v1, u1 = (self.A.form).arguments()
         x = fd.Function(v1.function_space()).vector()
+        return x
         # self.A.init_vector(x,1)
         
     def mpi_comm(self):         # confirm once. Not defined in firedrake
@@ -137,7 +138,9 @@ class _BilaplacianRsolver():
         
     def init_vector(self,x, dim):
         # self.M.init_vector(x,1)
+        v1, u1 = (self.M.form).arguments()
         x = fd.Function(v1.function_space).vector()
+        return x
 
     def solve(self,x,b):
         nit = self.Asolver.solve(self.help1, b)
@@ -213,7 +216,7 @@ class SqrtPrecisionPDE_Prior(_Prior):
         if self.mean is None:
             v1, u1 = (self.R.form).arguments()
             # self.mean = dl.Vector(self.R.mpi_comm())
-            self.init_vector(self.mean, 0, v1, u1)
+           self.mean =  self.init_vector(self.mean, 0, v1, u1)
      ###
     def init_vector(self, x, dim, v1, u1): # confirm what is sqrtM
         """
@@ -231,9 +234,9 @@ class SqrtPrecisionPDE_Prior(_Prior):
                 x = fd.Function(u2.function_space()).vector()
             elif dim == 1:
                 x = fd.Function(v2.function_space()).vector()
-            # self.A.init_vector(x,dim)
+                # self.A.init_vector(x,dim)
+        return x
         
-
 def BiLaplacianPrior(Vh, gamma, delta, Theta = None, mean=None, rel_tol=1e-12, max_iter=1000, robin_bc=False):
     """
     This function construct an instance of :code"`SqrtPrecisionPDE_Prior`  with covariance matrix
