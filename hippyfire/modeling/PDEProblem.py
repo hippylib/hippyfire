@@ -18,7 +18,7 @@ import firedrake as fd
 import ufl
 from petsc4py import PETSc
 from .variables import STATE, PARAMETER, ADJOINT
-from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from ..algorithms.linalg import Transpose, matVecMult
 from ..algorithms.linSolvers import CreateSolver
 from ..utils.vector2function import vector2Function
 

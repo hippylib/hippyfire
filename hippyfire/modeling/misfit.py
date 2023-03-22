@@ -17,7 +17,7 @@ import firedrake as fd
 import ufl
 # from .pointwiseObservation import assemblePointwiseObservation
 from .variables import STATE, PARAMETER
-from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from ..algorithms.linalg import Transpose, matVecMult
 
 import numpy as np
 from petsc4py import PETSc
@@ -128,7 +128,7 @@ class ContinuousStateObservation(Misfit):
         # Wr = dl.Vector(self.W.mpi_comm())
         # self.W.init_vector(Wr,0)
         matVecMult(self.W, r, Wr)
-        return innerFire(r, Wr) / (2.*self.noise_variance)
+        return r.inner(Wr) / (2.*self.noise_variance)
     
     def grad(self, i, x, out):
         if self.noise_variance is None:

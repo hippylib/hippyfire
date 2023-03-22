@@ -18,7 +18,7 @@ import firedrake as fd
 import ufl
 import math
 from .variables import STATE, PARAMETER, ADJOINT
-from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from ..algorithms.linalg import Transpose, matVecMult
 from petsc4py import PETSc
 
 class Model:
@@ -164,7 +164,7 @@ class Model:
 
         self.prior.Msolver.solve(tmp, mg)
         #self.prior.Rsolver.solve(tmp, mg)
-        return math.sqrt(innerFire(mg, tmp))
+        return math.sqrt(mg.inner(tmp))
         
     
     def setPointForHessianEvaluations(self, x, gauss_newton_approx=False):

@@ -29,7 +29,7 @@ import numbers
 # from ..algorithms.randomizedEigensolver import doublePass, doublePassG
 
 # from ..utils.random import parRandom
-from ..algorithms.linalg import Transpose, innerFire, matVecMult
+from ..algorithms.linalg import Transpose, matVecMult
 from ..algorithms.linSolvers import CreateSolver
 from ..utils.vector2function import vector2Function
 
@@ -69,7 +69,7 @@ class _Prior:
         v1, u1 = (self.R.form).arguments()
         Rd = fd.Function(u1.function_space()).vector()
         matVecMult(self.R, d, Rd)
-        return .5 * innerFire(Rd, d)
+        return .5 * Rd.inner(d)
 
 
 
