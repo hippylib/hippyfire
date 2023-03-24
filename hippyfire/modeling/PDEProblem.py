@@ -229,9 +229,9 @@ class PDEVariationalProblem(PDEProblem):
         self.At  = fd.assemble(fd.derivative(g_form[STATE],x_fun[ADJOINT]), self.bc0)
         self.C = fd.assemble(fd.derivative(g_form[ADJOINT],x_fun[PARAMETER]))
         # [bc.zero(self.C) for bc in self.bc0]
-        for bc in self.bc0:
-            bc.homogenize()
-            bc.apply(self.C)
+        # for bc in self.bc0:
+        #     bc.homogenize()
+        #     bc.apply(self.C)
 
         if self.solver_fwd_inc is None:
             self.solver_fwd_inc = self._createLUSolver()
@@ -246,20 +246,20 @@ class PDEVariationalProblem(PDEProblem):
             self.Wmm = None
         else:
             self.Wuu = fd.assemble(fd.derivative(g_form[STATE],x_fun[STATE]))
-            for bc in self.bc0:
-                bc.homogenize()
-                bc.apply(self.Wuu)
+            # for bc in self.bc0:
+            #     bc.homogenize()
+            #     bc.apply(self.Wuu)
             Wuu_t = Transpose(self.Wuu)
-            for bc in self.bc0:
-                bc.homogenize()
-                bc.apply(Wuu_t)
+            # for bc in self.bc0:
+            #     bc.homogenize()
+            #     bc.apply(Wuu_t)
             # [bc.zero(Wuu_t) for bc in self.bc0]
             self.Wuu = Transpose(Wuu_t)
             self.Wmu = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[STATE]))
             Wmu_t = Transpose(self.Wmu)
-            for bc in self.bc0:
-                bc.homogenize()
-                bc.apply(Wmu_t)
+            # for bc in self.bc0:
+            #     bc.homogenize()
+            #     bc.apply(Wmu_t)
             # [bc.zero(Wmu_t) for bc in self.bc0]
             self.Wmu = Transpose(Wmu_t)
             self.Wmm = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[PARAMETER]))
@@ -304,11 +304,19 @@ class PDEVariationalProblem(PDEProblem):
                 out.vector().assign(0.0)
             else:
                 matVecMult(KKT[i, j], dir, out)
+                fun = vector2Function(out, out.function_space())
+                [bc.apply(fun) for bc in self.bc0]
+                out = fun.vector()
+                out = fun.vector()
         else:
             if KKT[j,i] is None:
                 out.vector().assign(0.0)
-            # else:
-            #     KKT[j,i].transpmult(dir, out)
+            else:
+                KKT[j,i] = Transpose(KKT[j, i])
+                KKT[j, i].matVecMult(dir, out)
+                fun = vector2Function(out, out.function_space())
+                [bc.apply(fun) for bc in self.bc0]
+                out = fun.vector()
                 
     def apply_ijk(self,i,j,k, x, jdir, kdir, out):
         x_fun = [vector2Function(x[ii], self.Vh[ii]) for ii in range(3)]
@@ -327,7 +335,9 @@ class PDEVariationalProblem(PDEProblem):
         fd.assemble(form, tensor=out)
         
         if i in [STATE,ADJOINT]:
-            [bc.apply(out) for bc in self.bc0]
+            fun = vector2Function(out, out.function_space())
+            [bc.apply(fun) for bc in self.bc0]
+            out = fun.vector()
                    
     def _createLUSolver(self):
         # Can be used to create different solvers by specifying ksp and pre
