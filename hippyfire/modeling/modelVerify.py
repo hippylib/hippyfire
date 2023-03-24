@@ -16,8 +16,8 @@
 import numpy as np
 
 from .variables import STATE, PARAMETER, ADJOINT
-from .reducedHessian import ReducedHessian
-from ..utils.random import parRandom
+# from .reducedHessian import ReducedHessian
+# from ..utils.random import parRandom
     
 def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = True, eps = None):
     """
@@ -31,7 +31,7 @@ def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = Tru
         index = 0
     
     h = model.generate_vector(PARAMETER)
-    parRandom.normal(1., h)
+    # parRandom.normal(1., h)
 
     
     x = model.generate_vector()
@@ -45,9 +45,10 @@ def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = Tru
     grad_xh = grad_x.inner( h )
     
     model.setPointForHessianEvaluations(x)
-    H = ReducedHessian(model, misfit_only=misfit_only)
+    # H = ReducedHessian(model, misfit_only=misfit_only)
     Hh = model.generate_vector(PARAMETER)
-    H.mult(h, Hh)
+    matVecMult(A, h, Hh)
+    # H.mult(h, Hh)
     
     if eps is None:
         n_eps = 32
