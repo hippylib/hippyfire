@@ -68,7 +68,7 @@ class _Prior:
         # self.init_vector(Rd,0)
         v1, u1 = (self.R.form).arguments()
         Rd = fd.Function(u1.function_space()).vector()
-        matVecMult(self.R, d, Rd)
+        Rd = matVecMult(self.R, d, Rd)
         return .5 * Rd.inner(d)
 
 
@@ -77,7 +77,7 @@ class _Prior:
         d = m.copy()
         # d.axpy(-1., self.mean)
         d.set_local(d.get_local() + (-1. * self.mean.get_local()))
-        matVecMult(self.R, d, out)
+        out = matVecMult(self.R, d, out)
 
     def init_vector(self,x,dim):
         raise NotImplementedError("Child class should implement method init_vector")
@@ -113,12 +113,12 @@ class _BilaplacianR:
         # self.A.init_vector(x,1)
         
     def mpi_comm(self):         # confirm once. Not defined in firedrake
-        return self.A.mpi_comm()
+        return self.A.comm
         
-    def mult(self,x,y):         # confirm naming of the methods in this class
+    def mult(self, x, y):         # confirm naming of the methods in this class
         matVecMult(self.A, x, self.help1)
         self.Msolver.solve(self.help2, self.help1)
-        matVecMult(self.A, self.help2, y)
+        y = matVecMult(self.A, self.help2, y)
         
 class _BilaplacianRsolver():
     """
@@ -144,7 +144,7 @@ class _BilaplacianRsolver():
 
     def solve(self,x,b):
         nit = self.Asolver.solve(self.help1, b)
-        matVecMult(self.M, self.help1, self.help2)
+        self.help2 = matVecMult(self.M, self.help1, self.help2)
         nit += self.Asolver.solve(x, self.help2)
         return nit
 

@@ -35,3 +35,4 @@ def matVecMult(W, x, y):
         ypet = fd.as_backend_type(y).vec()
         Wpet.mult(xpet, ypet)
         y[:] = ypet
+        return y

@@ -143,7 +143,7 @@ class PDEVariationalProblem(PDEProblem):
         """ Return a vector in the shape of the parameter. """
         return fd.Function(self.Vh[PARAMETER]).vector()
     
-    def init_parameter(self, m):
+    def init_parameter(self, m): # CROSSCHECK
         """ Initialize the parameter. """
         dummy = self.generate_parameter()
         m.init( dummy.comm, dummy.local_range() )
@@ -178,8 +178,8 @@ class PDEVariationalProblem(PDEProblem):
             res_form = self.varf_handler(u, m, p)
             fd.solve(res_form == 0, u, bcs=self.bc)
             state.vector().assign(0.0)
-            # state.axpy(1., u.vector())    # axpy in fd gives compilation error
-            state.vector().set_local(u.vector().get_local())
+            state.axpy(1., u.vector())    # axpy in fd gives compilation error
+            # state.vector().set_local(u.vector().get_local())
         
     def solveAdj(self, adj, x, adj_rhs):
         """ Solve the linear adjoint problem: 
@@ -303,21 +303,28 @@ class PDEVariationalProblem(PDEProblem):
             if KKT[i,j] is None:
                 out.vector().assign(0.0)
             else:
-                matVecMult(KKT[i, j], dir, out)
-                fun = vector2Function(out, out.function_space())
-                [bc.apply(fun) for bc in self.bc0]
-                out = fun.vector()
-                out = fun.vector()
+                out = matVecMult(KKT[i, j], dir, out)
+                # fun = vector2Function(out, out.function_space())
+                # [bc.apply(fun) for bc in self.bc0]
+                # out = fun.vector()
+                # out = fun.vector()
         else:
             if KKT[j,i] is None:
                 out.vector().assign(0.0)
             else:
                 KKT[j,i] = Transpose(KKT[j, i])
-                KKT[j, i].matVecMult(dir, out)
-                fun = vector2Function(out, out.function_space())
-                [bc.apply(fun) for bc in self.bc0]
-                out = fun.vector()
-                
+                out = KKT[j, i].matVecMult(dir, out)
+                # fun = vector2Function(out, out.function_space())
+                # [bc.apply(fun) for bc in self.bc0]
+                # out = fun.vector()
+        if i == STATE or i == ADJOINT:
+            fun = vector2Function(out, out.function_space())
+            [bc.apply(fun) for bc in self.bc0]
+            out = fun.vector()
+        if j == STATE or j == ADJOINT:
+            fun = vector2Function(dir, dir.function_space())
+            dir = fun.vector()
+
     def apply_ijk(self,i,j,k, x, jdir, kdir, out):
         x_fun = [vector2Function(x[ii], self.Vh[ii]) for ii in range(3)]
         idir_fun = fd.TestFunction(self.Vh[i])

@@ -315,7 +315,7 @@ class Model:
         
         .. note:: This routine assumes that :code:`out` has the correct shape.
         """
-        matVecMult(self.prior.R, dm, out)
+        out = matVecMult(self.prior.R, dm, out)
     
     def Rsolver(self):
         """
