@@ -16,10 +16,10 @@
 import numpy as np
 
 from .variables import STATE, PARAMETER, ADJOINT
-# from .reducedHessian import ReducedHessian
-# from ..utils.random import parRandom
+from .reducedHessian import ReducedHessian
+from ..utils.rand import randomGen
     
-def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = True, eps = None):
+def modelVerify(model, m0, is_quadratic = False, misfit_only=False, verbose = True, eps = None):
     """
     Verify the reduced Gradient and the Hessian of a model.
     It will produce two loglog plots of the finite difference checks for the gradient and for the Hessian.
@@ -32,7 +32,7 @@ def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = Tru
     
     h = model.generate_vector(PARAMETER)
     # parRandom.normal(1., h)
-
+    h = randomGen(model.problem.Vh) # randomGen function requires function_space
     
     x = model.generate_vector()
     x[PARAMETER] = m0
@@ -45,10 +45,9 @@ def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = Tru
     grad_xh = grad_x.inner( h )
     
     model.setPointForHessianEvaluations(x)
-    # H = ReducedHessian(model, misfit_only=misfit_only)
+    H = ReducedHessian(model, misfit_only=misfit_only)
     Hh = model.generate_vector(PARAMETER)
-    matVecMult(A, h, Hh)
-    # H.mult(h, Hh)
+    H.mult(h, Hh)
     
     if eps is None:
         n_eps = 32
@@ -74,24 +73,26 @@ def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = Tru
         #Check the Hessian
         grad_xplus = model.generate_vector(PARAMETER)
         model.evalGradientParameter(x_plus, grad_xplus,misfit_only=misfit_only)
-        
+
         err  = grad_xplus - grad_x
         err *= 1./my_eps
         err -= Hh
-        
+
         err_H[i] = err.norm('linf')
     
     if verbose:
         modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H)
 
     xx = model.generate_vector(PARAMETER)
-    parRandom.normal(1., xx)
+    # parRandom.normal(1., xx)
+    xx = randomGen(model.problem.Vh)
     yy = model.generate_vector(PARAMETER)
-    parRandom.normal(1., yy)
-    
+    # parRandom.normal(1., yy)
+    yy = randomGen(model.problem.Vh)
+
     ytHx = H.inner(yy,xx)
     xtHy = H.inner(xx,yy)
-    if np.abs(ytHx + xtHy) > 0.: 
+    if np.abs(ytHx + xtHy) > 0.:
         rel_symm_error = 2*abs(ytHx - xtHy)/(ytHx + xtHy)
     else:
         rel_symm_error = abs(ytHx - xtHy)
