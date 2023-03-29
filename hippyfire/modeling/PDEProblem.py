@@ -298,7 +298,11 @@ class PDEVariationalProblem(PDEProblem):
         KKT[PARAMETER, PARAMETER] = self.Wmm
         KKT[ADJOINT, STATE] = self.A
         KKT[ADJOINT, PARAMETER] = self.C
-        
+
+        if j == STATE or j == ADJOINT:
+            fun = vector2Function(dir, dir.function_space())
+            dir = fun.vector()
+
         if i >= j:
             if KKT[i,j] is None:
                 out.vector().assign(0.0)
@@ -321,9 +325,7 @@ class PDEVariationalProblem(PDEProblem):
             fun = vector2Function(out, out.function_space())
             [bc.apply(fun) for bc in self.bc0]
             out = fun.vector()
-        if j == STATE or j == ADJOINT:
-            fun = vector2Function(dir, dir.function_space())
-            dir = fun.vector()
+
 
     def apply_ijk(self,i,j,k, x, jdir, kdir, out):
         x_fun = [vector2Function(x[ii], self.Vh[ii]) for ii in range(3)]
