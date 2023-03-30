@@ -29,9 +29,9 @@ import numbers
 # from ..algorithms.randomizedEigensolver import doublePass, doublePassG
 
 # from ..utils.random import parRandom
-from ..algorithms.linalg import Transpose, matVecMult
-from ..algorithms.linSolvers import CreateSolver
-from ..utils.vector2function import vector2Function
+from linalg import Transpose, matVecMult
+from linSolvers import CreateSolver
+from vector2function import vector2Function
 
 # from .expression import ExpressionModule
 
@@ -214,11 +214,11 @@ class SqrtPrecisionPDE_Prior(_Prior):
         self.mean = mean
         
         if self.mean is None:
-            v1, u1 = (self.R.form).arguments()
+
             # self.mean = dl.Vector(self.R.mpi_comm())
-           self.mean =  self.init_vector(self.mean, 0, v1, u1)
+            self.mean =  self.init_vector(self.mean, 0, Vh)
      ###
-    def init_vector(self, x, dim, v1, u1): # confirm what is sqrtM
+    def init_vector(self, x, dim, Vh): # confirm what is sqrtM
         """
         Inizialize a vector :code:`x` to be compatible with the range/domain of :math:`R`.
 
@@ -227,7 +227,7 @@ class SqrtPrecisionPDE_Prior(_Prior):
         """
         if dim == "noise":
             # self.sqrtM.init_vector(x, 1)
-            x = fd.Function(v1.function_space()).vector()
+            x = fd.Function(Vh).vector()
         else:
             v2, u2 = (self.A.form).arguments()
             if dim == 0:
@@ -259,26 +259,27 @@ def BiLaplacianPrior(Vh, gamma, delta, Theta = None, mean=None, rel_tol=1e-12, m
     """
     if isinstance(gamma, numbers.Number):
         gamma = fd.Constant(gamma)
-        
+
     if isinstance(delta, numbers.Number):
         delta = fd.Constant(delta)
 
     
-    def sqrt_precision_varf_handler(trial, test): 
+    def sqrt_precision_varf_handler(trial, test):
         if Theta == None:
             varfL = ufl.inner(ufl.grad(trial), ufl.grad(test))*ufl.dx
         else:
             varfL = ufl.inner( Theta*ufl.grad(trial), ufl.grad(test))*ufl.dx
-        
+
         varfM = ufl.inner(trial,test)*ufl.dx
-        
+
         varf_robin = ufl.inner(trial,test)*ufl.ds
-        
+
         if robin_bc:
-            robin_coeff = gamma*ufl.sqrt(delta/gamma)/dl.Constant(1.42)
+            robin_coeff = gamma*ufl.sqrt(delta/gamma)/fd.Constant(1.42)
         else:
-            robin_coeff = dl.Constant(0.)
-        
+            robin_coeff = fd.Constant(0.)
+
         return gamma*varfL + delta*varfM + robin_coeff*varf_robin
-    
+
+
     return SqrtPrecisionPDE_Prior(Vh, sqrt_precision_varf_handler, mean, rel_tol, max_iter)
