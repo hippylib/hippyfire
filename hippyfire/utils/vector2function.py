@@ -24,7 +24,7 @@ def vector2Function(x, Vh):
     return fun
 
 def applyBC(x, Vh, bcs):
-    if len(bcs == 0):
+    if len(bcs) == 0:
         return
     
     xfun = vector2Function(x, Vh)
