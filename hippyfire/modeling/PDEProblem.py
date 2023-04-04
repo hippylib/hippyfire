@@ -178,10 +178,9 @@ class PDEVariationalProblem(PDEProblem):
             p = fd.TestFunction(self.Vh[ADJOINT])
             res_form = self.varf_handler(u, m, p)
             fd.solve(res_form == 0, u, bcs=self.bc)
-            state.vector().assign(0.0)
+            state.assign(0.0)
             state.axpy(1., u.vector())    # axpy in fd gives compilation error
             # state.vector().set_local(u.vector().get_local())
-        x[STATE].set_local(np.flip(x[STATE].get_local()))
 
     def solveAdj(self, adj, x, adj_rhs):
         """ Solve the linear adjoint problem: 
@@ -204,6 +203,7 @@ class PDEVariationalProblem(PDEProblem):
         # dummy = fd.assemble(fd.inner(u , du) * fd.dx, bcs=self.bc0)
         self.solver = fd.LinearSolver(Aadj)
         self.solver.solve(adj, adj_rhs)
+        print("ADJ: ", np.linalg.norm(adj.array()) )
      
     def evalGradientParameter(self, x, out):
         """Given :math:`u, m, p`; evaluate :math:`\\delta_m F(u, m, p; \\hat{m}),\\, \\forall \\hat{m}.` """
@@ -212,8 +212,9 @@ class PDEVariationalProblem(PDEProblem):
         p = vector2Function(x[ADJOINT], self.Vh[ADJOINT])
         dm = fd.TestFunction(self.Vh[PARAMETER])
         res_form = self.varf_handler(u, m, p)
-        out.vector().assign(0.0)
-        fd.assemble(fd.derivative(res_form, m, dm), tensor=out)
+        out.assign(0.)
+        out.axpy(1., fd.assemble(fd.derivative(res_form, m, dm)).vector())
+        print("Grad PDEProb", out.array())
 
     def setLinearizationPoint(self, x, gauss_newton_approx):
         """ Set the values of the state and parameter
@@ -324,7 +325,7 @@ class PDEVariationalProblem(PDEProblem):
                 out.vector().assign(0.0)
             else:
                 #KKT[i, j] = Transpose(KKT[j, i])
-                matVecMult(KKT[i,j], dir, out)
+                #matVecMult(KKT[i,j], dir, out)
                 matVecMultTranspose(KKT[j, i], dir, out)
                 # fun = vector2Function(out, out.function_space())
                 # [bc.apply(fun) for bc in self.bc0]

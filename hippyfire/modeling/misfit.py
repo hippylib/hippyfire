@@ -93,6 +93,7 @@ class ContinuousStateObservation(Misfit):
         elif bcs is None:
             self.bcs = []
         else:
+            print("BCS= ", bcs)
             self.bcs = bcs
 
         if form is None:
@@ -113,8 +114,7 @@ class ContinuousStateObservation(Misfit):
         #     self.W = fd.assemble(form_new, bcs=bcs)
             # [bc.apply(self.W) for bc in bcs]
         # create a vector compatible for multiplication with W
-        v1, u1 = (self.W.form).arguments()
-        self.d = fd.Function(v1.function_space()).vector()  # self.d #rows = self.W #cols
+        self.d = fd.Function(self.Vh).vector()  # self.d #rows = self.W #cols
         # self.d = dl.Vector(self.W.mpi_comm())
         # self.W.init_vector(self.d,1)
         self.noise_variance = None
@@ -124,25 +124,27 @@ class ContinuousStateObservation(Misfit):
             raise ValueError("Noise Variance must be specified")
         elif self.noise_variance == 0:
             raise ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
-        r = self.d.copy()
-        # r.axpy(-1., x[STATE])
-        r.set_local(r.get_local() + (-1. * x[STATE].get_local()))
-        v1, u1 = (self.W.form).arguments()
-        Wr = fd.Function(u1.function_space()).vector()
+        r = fd.Function(self.Vh).vector()
+        r.assign(0.)
+        r.axpy(1., x[STATE])
+        r.axpy(-1., self.d)
+        Wr = fd.Function(self.Vh).vector()
         # Wr = dl.Vector(self.W.mpi_comm())
         # self.W.init_vector(Wr,0)
         matVecMult(self.W, r, Wr)
         return r.inner(Wr) / (2.*self.noise_variance)
 
     def grad(self, i, x, out):
-        self.noise_variance = 1.0
         if self.noise_variance is None:
             raise ValueError("Noise Variance must be specified")
         elif self.noise_variance == 0:
             raise ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         if i == STATE:
-            res = x[STATE]
-            res.set_local(x[STATE].get_local() - self.d.get_local())
+            res = fd.Function(self.Vh).vector()
+            res.assign(0.)
+            res.axpy(1., x[STATE])
+            res.axpy(-1., self.d)
+
             if len(self.bcs):
                 fun = vector2Function(res, res.function_space())
                 for bc in self.bcs:
@@ -156,7 +158,7 @@ class ContinuousStateObservation(Misfit):
                 out = fun.vector()
             out.set_local((1. / self.noise_variance) * out.get_local())
         elif i == PARAMETER:
-            out.vector().assign(0.0)
+            out.assign(0.0)
         else:
             raise IndexError()
 
