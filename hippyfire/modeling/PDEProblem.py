@@ -203,7 +203,6 @@ class PDEVariationalProblem(PDEProblem):
         # dummy = fd.assemble(fd.inner(u , du) * fd.dx, bcs=self.bc0)
         self.solver = fd.LinearSolver(Aadj)
         self.solver.solve(adj, adj_rhs)
-        print("ADJ: ", np.linalg.norm(adj.array()) )
      
     def evalGradientParameter(self, x, out):
         """Given :math:`u, m, p`; evaluate :math:`\\delta_m F(u, m, p; \\hat{m}),\\, \\forall \\hat{m}.` """
@@ -214,7 +213,6 @@ class PDEVariationalProblem(PDEProblem):
         res_form = self.varf_handler(u, m, p)
         out.assign(0.)
         out.axpy(1., fd.assemble(fd.derivative(res_form, m, dm)).vector())
-        print("Grad PDEProb", out.array())
 
     def setLinearizationPoint(self, x, gauss_newton_approx):
         """ Set the values of the state and parameter
