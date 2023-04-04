@@ -20,6 +20,7 @@ import petsc4py
 # from .pointwiseObservation import assemblePointwiseObservation
 from modeling.variables import STATE, PARAMETER
 from algorithms.linalg import Transpose, matVecMult
+from utils.vector2function import applyBC
 
 
 from utils.vector2function import vector2Function
@@ -128,10 +129,12 @@ class ContinuousStateObservation(Misfit):
         r.assign(0.)
         r.axpy(1., x[STATE])
         r.axpy(-1., self.d)
+        applyBC(r, self.Vh, self.bcs)
         Wr = fd.Function(self.Vh).vector()
         # Wr = dl.Vector(self.W.mpi_comm())
         # self.W.init_vector(Wr,0)
         matVecMult(self.W, r, Wr)
+        applyBC(r, self.Vh, self.bcs)
         return r.inner(Wr) / (2.*self.noise_variance)
 
     def grad(self, i, x, out):
@@ -144,18 +147,9 @@ class ContinuousStateObservation(Misfit):
             res.assign(0.)
             res.axpy(1., x[STATE])
             res.axpy(-1., self.d)
-
-            if len(self.bcs):
-                fun = vector2Function(res, res.function_space())
-                for bc in self.bcs:
-                    bc.apply(fun)
-                res = fun.vector()
+            applyBC(res, self.Vh, self.bcs)
             matVecMult(self.W, res, out)
-            if len(self.bcs):
-                fun = vector2Function(out, out.function_space())
-                for bc in self.bcs:
-                    bc.apply(fun)
-                out = fun.vector()
+            applyBC(out, self.Vh, self.bcs)
             out.set_local((1. / self.noise_variance) * out.get_local())
         elif i == PARAMETER:
             out.assign(0.0)
@@ -172,17 +166,9 @@ class ContinuousStateObservation(Misfit):
         elif self.noise_variance == 0:
             raise ZeroDivisionError("Noise Variance must not be 0.0 Set to 1.0 for deterministic inverse problems")
         if i == STATE and j == STATE:
-            if len(self.bcs):
-                fun = vector2Function(dir, dir.function_space())
-                for bc in self.bcs:
-                    bc.apply(fun)
-                dir = fun.vector()
+            applyBC(dir, self.Vh, self.bcs)
             matVecMult(self.W, dir, out)
-            if len(self.bcs):
-                fun = vector2Function(out, out.function_space())
-                for bc in self.bcs:
-                    bc.apply(fun)
-                out = fun.vector()
+            applyBC(out, self.Vh, self.bcs)
             out.set_local((1. / self.noise_variance) * out.get_local())
             # out *= (1./self.noise_variance)
         else:

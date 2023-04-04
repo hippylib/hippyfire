@@ -21,7 +21,7 @@ import petsc4py
 from modeling.variables import STATE, PARAMETER, ADJOINT
 from algorithms.linalg import Transpose, matVecMult, matVecMultTranspose
 from algorithms.linSolvers import CreateSolver
-from utils.vector2function import vector2Function
+from utils.vector2function import vector2Function, applyBC
 
 class PDEProblem(object):
     """ Consider the PDE problem:
@@ -229,11 +229,6 @@ class PDEVariationalProblem(PDEProblem):
         self.A = fd.assemble(fd.derivative(g_form[ADJOINT], x_fun[STATE]), bcs=self.bc0)
         self.At = fd.assemble(fd.derivative(g_form[STATE], x_fun[ADJOINT]), bcs=self.bc0)
         self.C = fd.assemble(fd.derivative(g_form[ADJOINT], x_fun[PARAMETER]))
-        # self.Ct = fd.assemble(fd.derivative(g_form[PARAMETER], x_fun[ADJOINT]))
-        # [bc.zero(self.C) for bc in self.bc0]
-        # for bc in self.bc0:
-        #     bc.homogenize()
-        #     bc.apply(self.C)
 
         if self.solver_fwd_inc is None:
             self.solver_fwd_inc = self._createLUSolver()
@@ -248,23 +243,7 @@ class PDEVariationalProblem(PDEProblem):
             self.Wmm = None
         else:
             self.Wuu = fd.assemble(fd.derivative(g_form[STATE], x_fun[STATE]))
-            # for bc in self.bc0:
-            #     bc.homogenize()
-            #     bc.apply(self.Wuu)
-            # Wuu_t = Transpose(self.Wuu)
-            # for bc in self.bc0:
-            #     bc.homogenize()
-            #     bc.apply(Wuu_t)
-            # [bc.zero(Wuu_t) for bc in self.bc0]
-            # self.Wuu = Transpose(Wuu_t)
             self.Wmu = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[STATE]))
-            # print(self.Wmu.M.handle.size)
-            # Wmu_t = Transpose(self.Wmu)
-            # for bc in self.bc0:
-            #     bc.homogenize()
-            #     bc.apply(Wmu_t)
-            # [bc.zero(Wmu_t) for bc in self.bc0]
-            # self.Wmu = Transpose(Wmu_t)
             self.Wmm = fd.assemble(fd.derivative(g_form[PARAMETER], x_fun[PARAMETER]))
         
     def solveIncremental(self, out, rhs, is_adj):
@@ -304,10 +283,7 @@ class PDEVariationalProblem(PDEProblem):
         KKT[ADJOINT, PARAMETER] = self.C
 
         if j == STATE or j == ADJOINT:
-            fun = vector2Function(dir, dir.function_space())
-            for bc in self.bc0:
-                bc.apply(fun)
-            dir = fun.vector()
+            applyBC(dir, self.Vh[j], self.bc0)
 
         if i >= j:
             if KKT[i, j] is None:
@@ -322,16 +298,10 @@ class PDEVariationalProblem(PDEProblem):
             if KKT[j, i] is None:
                 out.vector().assign(0.0)
             else:
-                #KKT[i, j] = Transpose(KKT[j, i])
-                #matVecMult(KKT[i,j], dir, out)
                 matVecMultTranspose(KKT[j, i], dir, out)
-                # fun = vector2Function(out, out.function_space())
-                # [bc.apply(fun) for bc in self.bc0]
-                # out = fun.vector()
+
         if i == STATE or i == ADJOINT:
-            fun = vector2Function(out, out.function_space())
-            [bc.apply(fun) for bc in self.bc0]
-            out = fun.vector()
+            applyBC(out, self.Vh[i], self.bc0)
 
 
     def apply_ijk(self, i, j, k, x, jdir, kdir, out):
