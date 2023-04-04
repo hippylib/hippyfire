@@ -68,7 +68,7 @@ class _Prior:
         # self.init_vector(Rd,0)
         v1, u1 = (self.R.A.form).arguments()
         Rd = fd.Function(v1.function_space()).vector()
-        matVecMult(self.R.A, d, Rd)
+        self.R.mult(d, Rd)
         return .5 * Rd.inner(d)
 
 
@@ -77,7 +77,7 @@ class _Prior:
         d = m.copy()
         # d.axpy(-1., self.mean)
         d.set_local(d.get_local() + (-1. * self.mean.get_local()))
-        matVecMult(self.R.A, d, out)
+        self.R.mult(d, out)
 
     def init_vector(self,x,dim):
         raise NotImplementedError("Child class should implement method init_vector")
