@@ -43,4 +43,14 @@ def matVecMult(W, x, y):
     ypet = fd.as_backend_type(y).vec()
     Wpet.mult(xpet, ypet)
     y[:] = ypet
-    return y
+
+
+def matVecMultTranspose(W, x, y):
+    if isinstance(W, fd.matrix.Matrix):
+        Wpet = W.M.handle
+    elif isinstance(W, petsc4py.PETSc.Mat):
+        Wpet = W
+    xpet = fd.as_backend_type(x).vec()
+    ypet = fd.as_backend_type(y).vec()
+    Wpet.multTranspose(xpet, ypet)
+    y[:] = ypet
