@@ -19,5 +19,5 @@ import time
 def randomGen(Vh):
     pcg = fd.PCG64(seed=int(time.time()))
     rg = fd.Generator(pcg)
-    f_beta = rg.beta(Vh, 1.0, 2.0)
-    return f_beta
+    #f_beta = rg.beta(Vh, 1.0, 2.0)
+    return rg.normal(Vh, 0., 1.)

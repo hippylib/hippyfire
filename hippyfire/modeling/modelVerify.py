@@ -34,16 +34,20 @@ def modelVerify(model, m0, is_quadratic=False, misfit_only=False, verbose=True, 
     # parRandom.normal(1., h)
     h = randomGen(model.problem.Vh[PARAMETER])  # randomGen function requires function_space
     h = h.vector()
+    print(h.array().shape)
     x = model.generate_vector()
     x[PARAMETER] = m0
-    x[PARAMETER] = x[PARAMETER].vector()
     model.solveFwd(x[STATE], x)
     model.solveAdj(x[ADJOINT], x)
     cx = model.cost(x)
+    print("C0:", cx)
 
     grad_x = model.generate_vector(PARAMETER)
     model.evalGradientParameter(x, grad_x,misfit_only=misfit_only)
-    grad_xh = grad_x.inner( h.vector() )
+    print("Grad x:", grad_x.array())
+    grad_xh = grad_x.inner( h )
+    print("Grad times dir: ", grad_xh)
+
 
     model.setPointForHessianEvaluations(x)
     H = ReducedHessian(model, misfit_only=misfit_only)
@@ -64,8 +68,7 @@ def modelVerify(model, m0, is_quadratic=False, misfit_only=False, verbose=True, 
 
         x_plus = model.generate_vector()
         x_plus[PARAMETER].axpy(1., m0)
-        # x_plus[PARAMETER].axpy(my_eps, h)
-        x_plus[PARAMETER].set_local(x_plus[PARAMETER].get_local() + (my_eps * (h.get_local())))
+        x_plus[PARAMETER].axpy(float(my_eps), h)
         model.solveFwd(x_plus[STATE],   x_plus)
         model.solveAdj(x_plus[ADJOINT], x_plus)
 
@@ -85,8 +88,8 @@ def modelVerify(model, m0, is_quadratic=False, misfit_only=False, verbose=True, 
         modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H)
 
     x = model.generate_vector(PARAMETER)
-    xx = randomGen(model.problem.Vh[PARAMETER])
-    yy = randomGen(model.problem.Vh[PARAMETER])
+    xx = randomGen(model.problem.Vh[PARAMETER]).vector()
+    yy = randomGen(model.problem.Vh[PARAMETER]).vector()
 
     ytHx = H.inner(yy, xx)
     xtHy = H.inner(xx, yy)

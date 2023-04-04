@@ -41,16 +41,16 @@ mtrue = randomGen(Vh[STATE])
 u_bdr = fd.SpatialCoordinate(mesh)[1]
 u_bdr0 = fd.Constant(0.0)
 
-bc = fd.DirichletBC(Vh[STATE], u_bdr, [3, 4]) # [3, 4] indicates that bc is applied to y == 0 amd y ==1
-bc0 = fd.DirichletBC(Vh[STATE], u_bdr0, [3, 4])
+bc = [] #fd.DirichletBC(Vh[STATE], u_bdr, [3, 4]) # [3, 4] indicates that bc is applied to y == 0 amd y ==1
+bc0 = [] #fd.DirichletBC(Vh[STATE], u_bdr0, [3, 4])
 
-f = fd.Constant(0.0)
+f = fd.Constant(1.0)
 
 
 def pde_varf(u, m, p):
-    return ufl.exp(m) * ufl.inner(ufl.grad(u), ufl.grad(p)) * ufl.dx - f * p * ufl.dx
+    return ufl.exp(m) * ufl.inner(ufl.grad(u), ufl.grad(p)) * ufl.dx + fd.Constant(10.)*u*p*ufl.ds - f * p * ufl.dx
 
-pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=False)
+pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)
 
 # Set up prior
 gamma = .1
@@ -62,7 +62,9 @@ alpha = math.pi / 4
 # tup = (theta0, theta1, alpha)
 # anis_diff = fd.Constant(tup)
 pr = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, robin_bc=True)
-mtrue = (randomGen(Vh[PARAMETER])).vector()
+x = fd.SpatialCoordinate(mesh)
+mtrue = fd.interpolate(fd.sin(x[0])*fd.cos(x[1]), Vh[PARAMETER]).vector()
+m0 = fd.interpolate(fd.sin(x[0]), Vh[PARAMETER]).vector()
 objs = [fd.Function(Vh[PARAMETER], mtrue), fd.Function(Vh[PARAMETER], pr.mean)]
 # plt.plot(objs)
 
@@ -78,13 +80,15 @@ rel_noise = 0.01
 # targets[:,1] = targets_y
 # print( "Number of observation points: {0}".format(ntargets) )
 
-misfit = ContinuousStateObservation(Vh[STATE], ufl.dx, bcs=[bc0])
+misfit = ContinuousStateObservation(Vh[STATE], ufl.dx, bcs=bc0)
+misfit.noise_variance = 1e-4
 utrue = pde.generate_state()
 x = [utrue, mtrue, None]
 pde.solveFwd(x[STATE], x)
 
 # print(misfit.W.M.handle.size)
-misfit.d = matVecMult(misfit.W, x[STATE], misfit.d)
+misfit.d.axpy(1., utrue)
+#misfit.d.axpy(np.sqrt(misfit.noise_variance), randomGen(Vh[STATE]).vector())
 # print(misfit.d.get_local())
 vmax = max( utrue.get_local().max(), misfit.d.get_local().max() )
 vmin = min( utrue.get_local().min(), misfit.d.get_local().min() )
@@ -94,9 +98,7 @@ print(vmax, vmin)
 # nb.plot_pts(targets, misfit.d, mytitle="Observations", subplot_loc=122, vmin=vmin, vmax=vmax)
 # plt.show()
 model = Model(pde, pr, misfit)
-x = fd.SpatialCoordinate(mesh)
-m0 = fd.interpolate(fd.sin(x[0]), Vh[PARAMETER])
-eps, err_grad, err_H = modelVerify(model, m0.vector())
+eps, err_grad, err_H = modelVerify(model, m0, misfit_only=True)
 
 print(err_grad)
 print(err_H)

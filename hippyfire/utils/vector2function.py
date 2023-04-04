@@ -19,6 +19,6 @@ def vector2Function(x, Vh):
     # pass
     fun = fd.Function(Vh)
     fun.vector().assign(0.0)
-    # fun.vector().axpy(1., x)          # axpy throws a compilation error.
-    fun.vector().set_local(x.get_local())
+    fun.vector().axpy(1., x)          # axpy throws a compilation error.
+    #fun.vector().set_local(x.get_local())
     return fun
