@@ -22,3 +22,13 @@ def vector2Function(x, Vh):
     fun.vector().axpy(1., x)          # axpy throws a compilation error.
     #fun.vector().set_local(x.get_local())
     return fun
+
+def applyBC(x, Vh, bcs):
+    if len(bcs == 0):
+        return
+    
+    xfun = vector2Function(x, Vh)
+    for bc in bcs:
+        bc.apply(xfun)
+
+    x.assign(xfun.vector())
