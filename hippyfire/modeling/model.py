@@ -153,16 +153,13 @@ class Model:
         tmp = self.generate_vector(PARAMETER)
         mg.assign(0.)
         self.problem.evalGradientParameter(x, mg)
-        print("Grad in Model 1:", mg.array())
         self.misfit.grad(PARAMETER,x,tmp)
         mg.axpy(1., tmp)
-        print("Grad in Model 2:", mg.array())
         if not misfit_only:
             self.prior.grad(x[PARAMETER], tmp)
             mg.axpy(1., tmp)
 
         self.prior.Msolver.solve(tmp, mg)
-        print("Grad in Model 4:", mg.array())
         #self.prior.Rsolver.solve(tmp, mg)
         return math.sqrt(mg.inner(tmp))
         
