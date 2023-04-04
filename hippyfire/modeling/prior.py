@@ -192,7 +192,7 @@ class SqrtPrecisionPDE_Prior(_Prior):
         
         varfM = fd.inner(trial, test) * fd.dx
         self.M = fd.assemble(varfM)
-        self.Msolver = CreateSolver(self.M, self.Vh.mesh().mpi_comm(), ksp_type="cg", pc_type="jacobi")
+        self.Msolver = CreateSolver(self.M, self.Vh.mesh().mpi_comm()) #, ksp_type="cg", pc_type="jacobi")
         # self.Msolver.set_operator(self.M)
         # self.Msolver.parameters["maximum_iterations"] = max_iter
         # self.Msolver.parameters["relative_tolerance"] = rel_tol
