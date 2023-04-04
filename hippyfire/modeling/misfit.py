@@ -90,8 +90,10 @@ class ContinuousStateObservation(Misfit):
 
         if isinstance(bcs, fd.bcs.DirichletBC):
             self.bcs = [bcs]
-        else:
+        elif bcs is None:
             self.bcs = []
+        else:
+            self.bcs = bcs
 
         if form is None:
             u, v = fd.TrialFunction(Vh), fd.TestFunction(Vh)
@@ -129,7 +131,7 @@ class ContinuousStateObservation(Misfit):
         Wr = fd.Function(u1.function_space()).vector()
         # Wr = dl.Vector(self.W.mpi_comm())
         # self.W.init_vector(Wr,0)
-        Wr = matVecMult(self.W, r, Wr)
+        matVecMult(self.W, r, Wr)
         return r.inner(Wr) / (2.*self.noise_variance)
 
     def grad(self, i, x, out):
@@ -146,7 +148,7 @@ class ContinuousStateObservation(Misfit):
                 for bc in self.bcs:
                     bc.apply(fun)
                 res = fun.vector()
-            out = matVecMult(self.W, res, out)
+            matVecMult(self.W, res, out)
             if len(self.bcs):
                 fun = vector2Function(out, out.function_space())
                 for bc in self.bcs:
@@ -173,7 +175,7 @@ class ContinuousStateObservation(Misfit):
                 for bc in self.bcs:
                     bc.apply(fun)
                 dir = fun.vector()
-            out = matVecMult(self.W, dir, out)
+            matVecMult(self.W, dir, out)
             if len(self.bcs):
                 fun = vector2Function(out, out.function_space())
                 for bc in self.bcs:

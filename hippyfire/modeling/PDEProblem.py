@@ -19,7 +19,7 @@ import ufl
 import numpy as np
 import petsc4py
 from modeling.variables import STATE, PARAMETER, ADJOINT
-from algorithms.linalg import Transpose, matVecMult
+from algorithms.linalg import Transpose, matVecMult, matVecMultTranspose
 from algorithms.linSolvers import CreateSolver
 from utils.vector2function import vector2Function
 
@@ -314,7 +314,7 @@ class PDEVariationalProblem(PDEProblem):
             if KKT[i, j] is None:
                 out.vector().assign(0.0)
             else:
-                out = matVecMult(KKT[i, j], dir, out)
+                matVecMult(KKT[i, j], dir, out)
                 # fun = vector2Function(out, out.function_space())
                 # [bc.apply(fun) for bc in self.bc0]
                 # out = fun.vector()
@@ -323,8 +323,9 @@ class PDEVariationalProblem(PDEProblem):
             if KKT[j, i] is None:
                 out.vector().assign(0.0)
             else:
-                KKT[i, j] = Transpose(KKT[j, i])
-                out = matVecMult(KKT[i, j], dir, out)
+                #KKT[i, j] = Transpose(KKT[j, i])
+                matVecMult(KKT[i,j], dir, out)
+                matVecMultTranspose(KKT[j, i], dir, out)
                 # fun = vector2Function(out, out.function_space())
                 # [bc.apply(fun) for bc in self.bc0]
                 # out = fun.vector()

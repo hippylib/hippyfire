@@ -84,25 +84,22 @@ def modelVerify(model, m0, is_quadratic=False, misfit_only=False, verbose=True, 
     if verbose:
         modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H)
 
-    # xx = model.generate_vector(PARAMETER)
-    # # parRandom.normal(1., xx)
-    # xx = randomGen(model.problem.Vh[PARAMETER])
-    # yy = model.generate_vector(PARAMETER)
-    # # parRandom.normal(1., yy)
-    # yy = randomGen(model.problem.Vh[PARAMETER])
+    x = model.generate_vector(PARAMETER)
+    xx = randomGen(model.problem.Vh[PARAMETER])
+    yy = randomGen(model.problem.Vh[PARAMETER])
 
-    # ytHx = H.inner(yy, xx)
-    # xtHy = H.inner(xx, yy)
-    # if np.abs(ytHx + xtHy) > 0.:
-    #     rel_symm_error = 2*abs(ytHx - xtHy)/(ytHx + xtHy)
-    # else:
-    #     rel_symm_error = abs(ytHx - xtHy)
-    # if verbose:
-    #     print( "(yy, H xx) - (xx, H yy) = ", rel_symm_error)
-    #     if rel_symm_error > 1e-10:
-    #         print( "HESSIAN IS NOT SYMMETRIC!!")
+    ytHx = H.inner(yy, xx)
+    xtHy = H.inner(xx, yy)
+    if np.abs(ytHx + xtHy) > 0.:
+         rel_symm_error = 2*abs(ytHx - xtHy)/(ytHx + xtHy)
+    else:
+         rel_symm_error = abs(ytHx - xtHy)
+    if verbose:
+         print( "(yy, H xx) - (xx, H yy) = ", rel_symm_error)
+         if rel_symm_error > 1e-10:
+             print( "HESSIAN IS NOT SYMMETRIC!!")
 
-    # return eps, err_grad, err_H
+    return eps, err_grad, err_H
 
 def modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H):
     try:

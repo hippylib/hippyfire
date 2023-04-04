@@ -96,4 +96,7 @@ print(vmax, vmin)
 model = Model(pde, pr, misfit)
 x = fd.SpatialCoordinate(mesh)
 m0 = fd.interpolate(fd.sin(x[0]), Vh[PARAMETER])
-_ = modelVerify(model, m0.vector())
+eps, err_grad, err_H = modelVerify(model, m0.vector())
+
+print(err_grad)
+print(err_H)
