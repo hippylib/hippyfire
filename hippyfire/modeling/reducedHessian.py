@@ -14,7 +14,7 @@
 # Software Foundation) version 2.0 dated June 1991.
 
 
-from .variables import STATE, PARAMETER, ADJOINT
+from modeling.variables import STATE, PARAMETER, ADJOINT
 
 
 class ReducedHessian:
@@ -24,7 +24,7 @@ class ReducedHessian:
 
     - :code:`model`:               the object which contains the description of the problem.
     - :code:`misfit_only`:         a boolean flag that describes whenever the full Hessian or only the misfit component of the Hessian is used.
-    
+
     Type :code:`help(modelTemplate)` for more information on which methods model should implement.
     """
     def __init__(self, model, misfit_only=False):
@@ -32,17 +32,17 @@ class ReducedHessian:
         Construct the reduced Hessian Operator
         """
         self.model = model
-        self.gauss_newton_approx = self.model.gauss_newton_approx 
-        self.misfit_only=misfit_only
+        self.gauss_newton_approx = self.model.gauss_newton_approx
+        self.misfit_only = misfit_only
         self.ncalls = 0
-        
+
         self.rhs_fwd = model.generate_vector(STATE)
         self.rhs_adj = model.generate_vector(ADJOINT)
         self.rhs_adj2 = model.generate_vector(ADJOINT)
-        self.uhat    = model.generate_vector(STATE)
-        self.phat    = model.generate_vector(ADJOINT)
+        self.uhat = model.generate_vector(STATE)
+        self.phat = model.generate_vector(ADJOINT)
         self.yhelp = model.generate_vector(PARAMETER)
-    
+
     def init_vector(self, x, dim):
         """
         Reshape the Vector :code:`x` so that it is compatible with the reduced Hessian
@@ -52,23 +52,23 @@ class ReducedHessian:
 
         - :code:`x`: the vector to reshape.
         - :code:`dim`: if 0 then :code:`x` will be reshaped to be compatible with the range of the reduced Hessian, if 1 then :code:`x` will be reshaped to be compatible with the domain of the reduced Hessian.
-               
+
         .. note:: Since the reduced Hessian is a self adjoint operator, the range and the domain is the same. Either way, we choosed to add the parameter :code:`dim` for consistency with the interface of :code:`Matrix` in dolfin.
         """
         self.model.init_parameter(x)
         
-    def mult(self,x,y):
+    def mult(self, x, y):
         """
         Apply the reduced Hessian (or the Gauss-Newton approximation) to the vector :code:`x`. Return the result in :code:`y`.
         """
         if self.gauss_newton_approx:
-            self.GNHessian(x,y)
+            self.GNHessian(x, y)
         else:
-            self.TrueHessian(x,y)
+            self.TrueHessian(x, y)
         
         self.ncalls += 1
     
-    def inner(self,x,y):
+    def inner(self, x, y):
         """
         Perform the inner product between :code:`x` and :code:`y` in the norm induced by the reduced
         Hessian :math:`H,\\,(x, y)_H = x' H y`.
@@ -110,9 +110,10 @@ class ReducedHessian:
         y.axpy(1., self.yhelp)
         self.model.applyWmu(self.uhat, self.yhelp)
         y.axpy(-1., self.yhelp)
-        
+        print(self.model.problem.Wmu.M.handle.size)
+
         if not self.misfit_only:
-            self.model.applyR(x,self.yhelp)
+            self.model.applyR(x, self.yhelp)
             y.axpy(1., self.yhelp)
             
             

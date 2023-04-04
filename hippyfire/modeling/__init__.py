@@ -15,15 +15,10 @@
 
 from .variables import *
 
-from .expression import ExpressionModule
-from .pointwiseObservation import assemblePointwiseObservation, exportPointwiseObservation
-from .timeDependentVector import TimeDependentVector
 
-from .PDEProblem import PDEProblem, PDEVariationalProblem
-from .prior import _Prior, LaplacianPrior, SqrtPrecisionPDE_Prior, BiLaplacianPrior, MollifiedBiLaplacianPrior, GaussianRealPrior, BiLaplacianComputeCoefficients
-from .misfit import Misfit, ContinuousStateObservation, PointwiseStateObservation, MultiStateMisfit, MultPointwiseStateObservation
-from .model import Model
-from .modelVerify import modelVerify
-from .reducedHessian import ReducedHessian, FDHessian
-
-from .posterior import GaussianLRPosterior, LowRankHessian
+from modeling.PDEProblem import PDEProblem, PDEVariationalProblem
+from modeling.prior import _Prior, SqrtPrecisionPDE_Prior, BiLaplacianPrior
+from modeling.misfit import Misfit, ContinuousStateObservation
+from modeling.model import Model
+from modeling.modelVerify import modelVerify
+from modeling.reducedHessian import ReducedHessian

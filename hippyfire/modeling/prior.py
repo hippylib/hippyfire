@@ -29,9 +29,9 @@ import numbers
 # from ..algorithms.randomizedEigensolver import doublePass, doublePassG
 
 # from ..utils.random import parRandom
-from linalg import Transpose, matVecMult
-from linSolvers import CreateSolver
-from vector2function import vector2Function
+from algorithms.linalg import Transpose, matVecMult
+from algorithms.linSolvers import CreateSolver
+from utils.vector2function import vector2Function
 
 # from .expression import ExpressionModule
 
@@ -61,14 +61,14 @@ class _Prior:
 
         
     def cost(self, m):
-        d = self.mean.copy()    # confirm if this makes sense. mean not defined
+        d = self.mean.copy()
         # d.axpy(-1., m)        # axpy gives a compilation error
         d.set_local(d.get_local() - (1. * m.get_local()))
         # Rd = dl.Vector(self.R.mpi_comm())
         # self.init_vector(Rd,0)
-        v1, u1 = (self.R.form).arguments()
-        Rd = fd.Function(u1.function_space()).vector()
-        Rd = matVecMult(self.R, d, Rd)
+        v1, u1 = (self.R.A.form).arguments()
+        Rd = fd.Function(v1.function_space()).vector()
+        Rd = matVecMult(self.R.A, d, Rd)
         return .5 * Rd.inner(d)
 
 
@@ -77,7 +77,7 @@ class _Prior:
         d = m.copy()
         # d.axpy(-1., self.mean)
         d.set_local(d.get_local() + (-1. * self.mean.get_local()))
-        out = matVecMult(self.R, d, out)
+        out = matVecMult(self.R.A, d, out)
 
     def init_vector(self,x,dim):
         raise NotImplementedError("Child class should implement method init_vector")
@@ -106,7 +106,7 @@ class _BilaplacianR:
         # self.A.init_vector(self.help1, 0)
         # self.A.init_vector(self.help2, 1)
         
-    def init_vector(self,x, dim): # confirm this once
+    def init_vector(self, x, dim): # confirm this once
         v1, u1 = (self.A.form).arguments()
         x = fd.Function(v1.function_space()).vector()
         return x
@@ -116,10 +116,11 @@ class _BilaplacianR:
         return self.A.comm
         
     def mult(self, x, y):         # confirm naming of the methods in this class
-        matVecMult(self.A, x, self.help1)
+        self.help1 = matVecMult(self.A, x, self.help1)
         self.Msolver.solve(self.help2, self.help1)
         y = matVecMult(self.A, self.help2, y)
-        
+
+
 class _BilaplacianRsolver():
     """
     Operator that represent the action of the inverse the regularization/precision matrix
@@ -128,7 +129,7 @@ class _BilaplacianRsolver():
     def __init__(self, Asolver, M):
         self.Asolver = Asolver
         self.M = M
-        
+
         v1, u1 = (self.M.form).arguments()
         self.help1 = fd.Function(u1.function_space()).vector()
         self.help2 = fd.Function(u1.function_space()).vector()
@@ -136,13 +137,13 @@ class _BilaplacianRsolver():
         # self.init_vector(self.help1, 0)
         # self.init_vector(self.help2, 0)
         
-    def init_vector(self,x, dim):
+    def init_vector(self, x, dim):
         # self.M.init_vector(x,1)
         v1, u1 = (self.M.form).arguments()
         x = fd.Function(v1.function_space).vector()
         return x
 
-    def solve(self,x,b):
+    def solve(self, x, b):
         nit = self.Asolver.solve(self.help1, b)
         self.help2 = matVecMult(self.M, self.help1, self.help2)
         nit += self.Asolver.solve(x, self.help2)
@@ -198,7 +199,7 @@ class SqrtPrecisionPDE_Prior(_Prior):
         # self.Msolver.parameters["error_on_nonconvergence"] = True
         # self.Msolver.parameters["nonzero_initial_guess"] = False
         
-        self.A = fd.assemble( sqrt_precision_varf_handler(trial, test) )
+        self.A = fd.assemble(sqrt_precision_varf_handler(trial, test))
         self.Asolver = CreateSolver(self.A, self.Vh.mesh().mpi_comm(), ksp_type="cg", pc_type="gamg")
         # self.Asolver.set_operator(self.A)
         # self.Asolver.parameters["maximum_iterations"] = max_iter
@@ -208,17 +209,16 @@ class SqrtPrecisionPDE_Prior(_Prior):
         
         # old_qr = dl.parameters["form_compiler"]["quadrature_degree"]
                 #
-        self.R = _BilaplacianR(self.A, self.Msolver)      
+        self.R = _BilaplacianR(self.A, self.Msolver)
         self.Rsolver = _BilaplacianRsolver(self.Asolver, self.M)
          
         self.mean = mean
         
         if self.mean is None:
-
-            # self.mean = dl.Vector(self.R.mpi_comm())
-            self.mean =  self.init_vector(self.mean, 0, Vh)
+            self.mean = self.init_vector(self.mean, 0)
      ###
-    def init_vector(self, x, dim, Vh): # confirm what is sqrtM
+
+    def init_vector(self, x, dim):  # confirm what is sqrtM
         """
         Inizialize a vector :code:`x` to be compatible with the range/domain of :math:`R`.
 
@@ -227,7 +227,7 @@ class SqrtPrecisionPDE_Prior(_Prior):
         """
         if dim == "noise":
             # self.sqrtM.init_vector(x, 1)
-            x = fd.Function(Vh).vector()
+            pass
         else:
             v2, u2 = (self.A.form).arguments()
             if dim == 0:

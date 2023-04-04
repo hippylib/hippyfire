@@ -6,18 +6,21 @@ import firedrake as fd
 import ufl
 import numpy as np
 import matplotlib.pyplot as plt
-import nb
+# import nb
 
-sys.path.append(os.environ.get('HIPPYFIRE_BASE_DIR', '../') )
-from hippyfire import *
-from variables import STATE, PARAMETER, ADJOINT
-from PDEProblem import PDEVariationalProblem
-from rand import randomGen
-from prior import BiLaplacianPrior
-from misfit import ContinuousStateObservation
-from linalg import matVecMult
-from model import Model
-from modelVerify import modelVerify
+sys.path.insert(0, os.environ.get('HIPPYFIRE_BASE_DIR'))
+
+from modeling.variables import STATE, PARAMETER, ADJOINT
+from modeling.PDEProblem import PDEVariationalProblem
+from modeling.prior import BiLaplacianPrior
+from modeling.misfit import ContinuousStateObservation
+from modeling.model import Model
+from modeling.modelVerify import modelVerify
+
+from utils.rand import randomGen
+
+from algorithms.linalg import matVecMult
+
 
 
 # Set up mesh and finite element spaces

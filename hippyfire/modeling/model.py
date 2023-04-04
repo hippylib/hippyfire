@@ -17,23 +17,23 @@
 import firedrake as fd
 import ufl
 import math
-from .variables import STATE, PARAMETER, ADJOINT
-from ..algorithms.linalg import Transpose, matVecMult
+from modeling.variables import STATE, PARAMETER, ADJOINT
+from algorithms.linalg import Transpose, matVecMult
 from petsc4py import PETSc
 
 class Model:
     """
     This class contains the full description of the inverse problem.
     As inputs it takes a :code:`PDEProblem object`, a :code:`Prior` object, and a :code:`Misfit` object.
-    
+
     In the following we will denote with
 
         - :code:`u` the state variable
         - :code:`m` the (model) parameter variable
         - :code:`p` the adjoint variable
-        
+
     """
-    
+
     def __init__(self, problem, prior,misfit):
         """
         Create a model given:
@@ -51,7 +51,7 @@ class Model:
         self.n_adj_solve = 0
         self.n_inc_solve = 0
                 
-    def generate_vector(self, component = "ALL"):
+    def generate_vector(self, component="ALL"):
         """
         By default, return the list :code:`[u,m,p]` where:
         
@@ -83,9 +83,7 @@ class Model:
         """
         Reshape :code:`m` so that it is compatible with the parameter variable
         """
-        # self.prior.init_vector(m,0)
-        v1, u1 = (self.prior.form).arguments() # confirm if self.prior is a matrix. Seems off
-        m = fd.Function(u1.function_space()).vector()
+        self.prior.init_vector(m, 0)
 
     def cost(self, x):
         """
@@ -188,7 +186,6 @@ class Model:
         if hasattr(self.prior, "setLinearizationPoint"):
             self.prior.setLinearizationPoint(x[PARAMETER], self.gauss_newton_approx)
 
-        
     def solveFwdIncremental(self, sol, rhs):
         """
         Solve the linearized (incremental) forward problem for a given right-hand side
@@ -297,6 +294,7 @@ class Model:
         if self.gauss_newton_approx:
             out.vector().assign(0.0)
         else:
+            # print(self.problem.Wmu.M.handle.size)
             self.problem.apply_ij(PARAMETER, STATE, du, out)
             tmp = self.generate_vector(PARAMETER)
             self.misfit.apply_ij(PARAMETER, STATE, du, tmp)
@@ -315,8 +313,8 @@ class Model:
         
         .. note:: This routine assumes that :code:`out` has the correct shape.
         """
-        out = matVecMult(self.prior.R, dm, out)
-    
+        self.prior.R.mult(dm, out)
+
     def Rsolver(self):
         """
         Return an object :code:`Rsovler` that is a suitable solver for the regularization

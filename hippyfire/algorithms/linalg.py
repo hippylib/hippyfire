@@ -15,24 +15,32 @@
 
 import firedrake as fd
 from pyop2 import op2
-from firedrake.petsc import PETSc
+import petsc4py
 
 # from ..utils.random import parRandom
 import numpy as np
 
 
 def Transpose(A):
-    a = A.form                  # extract UFL form of matrix
-    v, u = a.arguments()        # extract trial and test functions
-    temp = u
-    a_new = fd.replace(a, {u : v, v : temp}) # creating transposed bilinear form
-    AT = fd.assemble(a_new)
+    # a = A.form                  # extract UFL form of matrix
+    # v, u = a.arguments()        # extract trial and test functions
+    # temp = u
+    # a_new = fd.replace(a, {u : v, v : temp}) # creating transposed bilinear form
+    # AT = fd.assemble(a_new)
+    if isinstance(A, fd.matrix.Matrix):
+        A = A.M.handle
+    # AT = A.transpose()
+    AT = petsc4py.PETSc.Mat()
+    petsc4py.PETSc.Mat.transpose(A, out=AT)
     return AT
 
 def matVecMult(W, x, y):
+    if isinstance(W, fd.matrix.Matrix):
         Wpet = W.M.handle
-        xpet = fd.as_backend_type(x).vec()
-        ypet = fd.as_backend_type(y).vec()
-        Wpet.mult(xpet, ypet)
-        y[:] = ypet
-        return y
+    elif isinstance(W, petsc4py.PETSc.Mat):
+        Wpet = W
+    xpet = fd.as_backend_type(x).vec()
+    ypet = fd.as_backend_type(y).vec()
+    Wpet.mult(xpet, ypet)
+    y[:] = ypet
+    return y

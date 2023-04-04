@@ -1,6 +1,6 @@
-# Copyright (c) 2016-2018, The University of Texas at Austin 
+# Copyright (c) 2016-2018, The University of Texas at Austin
 # & University of California--Merced.
-# Copyright (c) 2019-2020, The University of Texas at Austin 
+# Copyright (c) 2019-2020, The University of Texas at Austin
 # University of California--Merced, Washington University in St. Louis.
 #
 # All Rights reserved.
@@ -16,11 +16,12 @@
 # import dolfin as dl
 import firedrake as fd
 import ufl
-from petsc4py import PETSc
-from .variables import STATE, PARAMETER, ADJOINT
-from ..algorithms.linalg import Transpose, matVecMult
-from ..algorithms.linSolvers import CreateSolver
-from ..utils.vector2function import vector2Function
+import numpy as np
+import petsc4py
+from modeling.variables import STATE, PARAMETER, ADJOINT
+from algorithms.linalg import Transpose, matVecMult
+from algorithms.linSolvers import CreateSolver
+from utils.vector2function import vector2Function
 
 class PDEProblem(object):
     """ Consider the PDE problem:
@@ -63,7 +64,7 @@ class PDEProblem(object):
         """Given :math:`u, m, p`; evaluate :math:`\\delta_m F(u, m, p; \\hat{m}),\\, \\forall \\hat{m}.` """
         raise NotImplementedError("Child class should implement method evalGradientParameter")
  
-    def setLinearizationPoint(self,x, gauss_newton_approx):
+    def setLinearizationPoint(self, x, gauss_newton_approx):
 
         """ Set the values of the state and parameter
             for the incremental forward and adjoint solvers. 
@@ -90,7 +91,7 @@ class PDEProblem(object):
         """
         raise NotImplementedError("Child class should implement method solveIncremental")
 
-    def apply_ij(self,i,j, dir, out):   
+    def apply_ij(self, i, j, dir, out):
         """
             Given :math:`u, m, p`; compute 
             :math:`\\delta_{ij} F(u, m, p; \\hat{i}, \\tilde{j})` in the direction :math:`\\tilde{j} =` :code:`dir`, 
@@ -98,7 +99,7 @@ class PDEProblem(object):
         """
         raise NotImplementedError("Child class should implement method apply_ij")
         
-    def apply_ijk(self,i,j,k, x, jdir, kdir, out):
+    def apply_ijk(self, i, j, k, x, jdir, kdir, out):
         """
             Given :code:`x = [u,a,p]`; compute
             :math:`\\delta_{ijk} F(u,a,p; \\hat{i}, \\tilde{j}, \\tilde{k})`
@@ -107,7 +108,7 @@ class PDEProblem(object):
         raise NotImplementedError("Child class should implement apply_ijk")
 
 class PDEVariationalProblem(PDEProblem):
-    def __init__(self, Vh, varf_handler, bc, bc0, is_fwd_linear = False):
+    def __init__(self, Vh, varf_handler, bc, bc0, is_fwd_linear=False):
         self.Vh = Vh
         self.varf_handler = varf_handler
         if type(bc) is fd.bcs.DirichletBC:
@@ -119,7 +120,7 @@ class PDEVariationalProblem(PDEProblem):
         else:
             self.bc0 = bc0
         
-        self.A  = None
+        self.A = None
         self.At = None
         self.C = None
         self.Wmu = None
@@ -131,9 +132,9 @@ class PDEVariationalProblem(PDEProblem):
         
         self.is_fwd_linear = is_fwd_linear
         self.n_calls = {"forward": 0,
-                        "adjoint":0 ,
-                        "incremental_forward":0,
-                        "incremental_adjoint":0}
+                        "adjoint": 0,
+                        "incremental_forward": 0,
+                        "incremental_adjoint": 0}
 
     def generate_state(self):
         """ Return a vector in the shape of the state. """
@@ -143,10 +144,10 @@ class PDEVariationalProblem(PDEProblem):
         """ Return a vector in the shape of the parameter. """
         return fd.Function(self.Vh[PARAMETER]).vector()
     
-    def init_parameter(self, m): # CROSSCHECK
+    def init_parameter(self, m):  # CROSSCHECK
         """ Initialize the parameter. """
         dummy = self.generate_parameter()
-        m.init( dummy.comm, dummy.local_range() )
+        m.init(dummy.comm, dummy.local_range())
     
     def solveFwd(self, state, x):
         """ Solve the possibly nonlinear forward problem:
@@ -162,14 +163,14 @@ class PDEVariationalProblem(PDEProblem):
             self.solver = self._createLUSolver()
         if self.is_fwd_linear:
             u = fd.TrialFunction(self.Vh[STATE])
-            m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
+            m = vector2Function(x[PARAMETER].vector(), self.Vh[PARAMETER])
             p = fd.TestFunction(self.Vh[ADJOINT])
             res_form = self.varf_handler(u, m, p)
             A_form = ufl.lhs(res_form)
             b_form = ufl.rhs(res_form)
-            A = fd.assemble(A_form, bcs=self.bc)
-            b = fd.assemble(b_form, bcs=self.bc)
-            self.solver.operator(A)
+            self.A = fd.assemble(A_form, bcs=self.bc)
+            b = fd.assemble(b_form, bcs=self.bc).vector()
+            self.solver = fd.LinearSolver(self.A)
             self.solver.solve(state, b)
         else:
             u = vector2Function(x[STATE], self.Vh[STATE])
@@ -180,7 +181,8 @@ class PDEVariationalProblem(PDEProblem):
             state.vector().assign(0.0)
             state.axpy(1., u.vector())    # axpy in fd gives compilation error
             # state.vector().set_local(u.vector().get_local())
-        
+        x[STATE].set_local(np.flip(x[STATE].get_local()))
+
     def solveAdj(self, adj, x, adj_rhs):
         """ Solve the linear adjoint problem: 
             Given :math:`m, u`; find :math:`p` such that
@@ -197,10 +199,10 @@ class PDEVariationalProblem(PDEProblem):
         du = fd.TestFunction(self.Vh[STATE])
         dp = fd.TrialFunction(self.Vh[ADJOINT])
         varf = self.varf_handler(u, m, p)
-        adj_form = fd.derivative(fd.derivative(varf, u, du), p, dp )
-        Aadj= fd.assemble(adj_form, bcs=self.bc0)
+        adj_form = fd.derivative(fd.derivative(varf, u, du), p, dp)
+        Aadj = fd.assemble(adj_form, bcs=self.bc0)
         # dummy = fd.assemble(fd.inner(u , du) * fd.dx, bcs=self.bc0)
-        self.solver.operator(Aadj)
+        self.solver = fd.LinearSolver(Aadj)
         self.solver.solve(adj, adj_rhs)
      
     def evalGradientParameter(self, x, out):
@@ -212,22 +214,23 @@ class PDEVariationalProblem(PDEProblem):
         res_form = self.varf_handler(u, m, p)
         out.vector().assign(0.0)
         fd.assemble(fd.derivative(res_form, m, dm), tensor=out)
-         
+
     def setLinearizationPoint(self, x, gauss_newton_approx):
         """ Set the values of the state and parameter
             for the incremental forward and adjoint solvers. """
-            
+
         x_fun = [vector2Function(x[i], self.Vh[i]) for i in range(3)]
-        
+
         f_form = self.varf_handler(*x_fun)
-        
+
         g_form = [None, None, None]
         for i in range(3):
             g_form[i] = fd.derivative(f_form, x_fun[i])
             
-        self.A = fd.assemble(fd.derivative(g_form[ADJOINT],x_fun[STATE]), self.bc0)
-        self.At  = fd.assemble(fd.derivative(g_form[STATE],x_fun[ADJOINT]), self.bc0)
-        self.C = fd.assemble(fd.derivative(g_form[ADJOINT],x_fun[PARAMETER]))
+        self.A = fd.assemble(fd.derivative(g_form[ADJOINT], x_fun[STATE]), bcs=self.bc0)
+        self.At = fd.assemble(fd.derivative(g_form[STATE], x_fun[ADJOINT]), bcs=self.bc0)
+        self.C = fd.assemble(fd.derivative(g_form[ADJOINT], x_fun[PARAMETER]))
+        # self.Ct = fd.assemble(fd.derivative(g_form[PARAMETER], x_fun[ADJOINT]))
         # [bc.zero(self.C) for bc in self.bc0]
         # for bc in self.bc0:
         #     bc.homogenize()
@@ -237,32 +240,33 @@ class PDEVariationalProblem(PDEProblem):
             self.solver_fwd_inc = self._createLUSolver()
             self.solver_adj_inc = self._createLUSolver()
         
-        self.solver_fwd_inc.operator(self.A)
-        self.solver_adj_inc.operator(self.At)
+        self.solver_fwd_inc = fd.LinearSolver(self.A)
+        self.solver_adj_inc = fd.LinearSolver(self.At)
 
         if gauss_newton_approx:
             self.Wuu = None
             self.Wmu = None
             self.Wmm = None
         else:
-            self.Wuu = fd.assemble(fd.derivative(g_form[STATE],x_fun[STATE]))
+            self.Wuu = fd.assemble(fd.derivative(g_form[STATE], x_fun[STATE]))
             # for bc in self.bc0:
             #     bc.homogenize()
             #     bc.apply(self.Wuu)
-            Wuu_t = Transpose(self.Wuu)
+            # Wuu_t = Transpose(self.Wuu)
             # for bc in self.bc0:
             #     bc.homogenize()
             #     bc.apply(Wuu_t)
             # [bc.zero(Wuu_t) for bc in self.bc0]
-            self.Wuu = Transpose(Wuu_t)
+            # self.Wuu = Transpose(Wuu_t)
             self.Wmu = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[STATE]))
-            Wmu_t = Transpose(self.Wmu)
+            # print(self.Wmu.M.handle.size)
+            # Wmu_t = Transpose(self.Wmu)
             # for bc in self.bc0:
             #     bc.homogenize()
             #     bc.apply(Wmu_t)
             # [bc.zero(Wmu_t) for bc in self.bc0]
-            self.Wmu = Transpose(Wmu_t)
-            self.Wmm = fd.assemble(fd.derivative(g_form[PARAMETER],x_fun[PARAMETER]))
+            # self.Wmu = Transpose(Wmu_t)
+            self.Wmm = fd.assemble(fd.derivative(g_form[PARAMETER], x_fun[PARAMETER]))
         
     def solveIncremental(self, out, rhs, is_adj):
         """ If :code:`is_adj == False`:
@@ -286,14 +290,15 @@ class PDEVariationalProblem(PDEProblem):
             self.n_calls["incremental_forward"] += 1
             self.solver_fwd_inc.solve(out, rhs)
     
-    def apply_ij(self,i,j, dir, out):   
+    def apply_ij(self, i, j, dir, out):
         """
             Given :math:`u, m, p`; compute 
             :math:`\\delta_{ij} F(u, m, p; \\hat{i}, \\tilde{j})` in the direction :math:`\\tilde{j} =` :code:`dir`,
             :math:`\\forall \\hat{i}`.
         """
+        # print(self.Wmu.M.handle.size)
         KKT = {}
-        KKT[STATE,STATE] = self.Wuu
+        KKT[STATE, STATE] = self.Wuu
         KKT[PARAMETER, STATE] = self.Wmu
         KKT[PARAMETER, PARAMETER] = self.Wmm
         KKT[ADJOINT, STATE] = self.A
@@ -301,10 +306,12 @@ class PDEVariationalProblem(PDEProblem):
 
         if j == STATE or j == ADJOINT:
             fun = vector2Function(dir, dir.function_space())
+            for bc in self.bc0:
+                bc.apply(fun)
             dir = fun.vector()
 
         if i >= j:
-            if KKT[i,j] is None:
+            if KKT[i, j] is None:
                 out.vector().assign(0.0)
             else:
                 out = matVecMult(KKT[i, j], dir, out)
@@ -313,11 +320,11 @@ class PDEVariationalProblem(PDEProblem):
                 # out = fun.vector()
                 # out = fun.vector()
         else:
-            if KKT[j,i] is None:
+            if KKT[j, i] is None:
                 out.vector().assign(0.0)
             else:
-                KKT[j,i] = Transpose(KKT[j, i])
-                out = KKT[j, i].matVecMult(dir, out)
+                KKT[i, j] = Transpose(KKT[j, i])
+                out = matVecMult(KKT[i, j], dir, out)
                 # fun = vector2Function(out, out.function_space())
                 # [bc.apply(fun) for bc in self.bc0]
                 # out = fun.vector()
@@ -327,28 +334,29 @@ class PDEVariationalProblem(PDEProblem):
             out = fun.vector()
 
 
-    def apply_ijk(self,i,j,k, x, jdir, kdir, out):
+    def apply_ijk(self, i, j, k, x, jdir, kdir, out):
         x_fun = [vector2Function(x[ii], self.Vh[ii]) for ii in range(3)]
         idir_fun = fd.TestFunction(self.Vh[i])
         jdir_fun = vector2Function(jdir, self.Vh[j])
         kdir_fun = vector2Function(kdir, self.Vh[k])
-        
+
         res_form = self.varf_handler(*x_fun)
         form = fd.derivative(
                fd.derivative(
                fd.derivative(res_form, x_fun[i], idir_fun),
                x_fun[j], jdir_fun),
                x_fun[k], kdir_fun)
-        
+
         out.vector().assign(0.0)
         fd.assemble(form, tensor=out)
-        
-        if i in [STATE,ADJOINT]:
+
+        if i in [STATE, ADJOINT]:
             fun = vector2Function(out, out.function_space())
-            [bc.apply(fun) for bc in self.bc0]
+            for bc in self.bc0:
+                bc.apply(fun)
             out = fun.vector()
-                   
+
     def _createLUSolver(self):
         # Can be used to create different solvers by specifying ksp and pre
-        solver = CreateSolver(self.A, self.Vh[STATE].mesh().comm() )
+        solver = CreateSolver(self.A, self.Vh[STATE].mesh().comm)
         return solver
