@@ -41,14 +41,14 @@ mtrue = randomGen(Vh[STATE])
 u_bdr = fd.SpatialCoordinate(mesh)[1]
 u_bdr0 = fd.Constant(0.0)
 
-bc = [] #fd.DirichletBC(Vh[STATE], u_bdr, [3, 4]) # [3, 4] indicates that bc is applied to y == 0 amd y ==1
-bc0 = [] #fd.DirichletBC(Vh[STATE], u_bdr0, [3, 4])
+bc = fd.DirichletBC(Vh[STATE], u_bdr, [3, 4]) # [3, 4] indicates that bc is applied to y == 0 amd y ==1
+bc0 = fd.DirichletBC(Vh[STATE], u_bdr0, [3, 4])
 
 f = fd.Constant(1.0)
 
 
 def pde_varf(u, m, p):
-    return ufl.exp(m) * ufl.inner(ufl.grad(u), ufl.grad(p)) * ufl.dx + fd.Constant(10.)*u*p*ufl.ds - f * p * ufl.dx
+    return ufl.exp(m) * ufl.inner(ufl.grad(u), ufl.grad(p)) * ufl.dx - f * p * ufl.dx
 
 pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)
 
