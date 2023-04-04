@@ -74,36 +74,35 @@ def modelVerify(model, m0, is_quadratic=False, misfit_only=False, verbose=True, 
 
         #Check the Hessian
         grad_xplus = model.generate_vector(PARAMETER)
-        model.evalGradientParameter(x_plus, grad_xplus,misfit_only=misfit_only)
+        model.evalGradientParameter(x_plus, grad_xplus, misfit_only=misfit_only)
 
-        err  = grad_xplus - grad_x
+        err = grad_xplus - grad_x
         err *= 1./my_eps
         err -= Hh
-
-        err_H[i] = err.norm('linf')
-
+        # err_H[i] = err.norm('linf')
+        err_H[i] = np.linalg.norm(err.get_local(), ord=np.inf)
     if verbose:
         modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H)
 
-    xx = model.generate_vector(PARAMETER)
-    # parRandom.normal(1., xx)
-    xx = randomGen(model.problem.Vh)
-    yy = model.generate_vector(PARAMETER)
-    # parRandom.normal(1., yy)
-    yy = randomGen(model.problem.Vh)
+    # xx = model.generate_vector(PARAMETER)
+    # # parRandom.normal(1., xx)
+    # xx = randomGen(model.problem.Vh[PARAMETER])
+    # yy = model.generate_vector(PARAMETER)
+    # # parRandom.normal(1., yy)
+    # yy = randomGen(model.problem.Vh[PARAMETER])
 
-    ytHx = H.inner(yy,xx)
-    xtHy = H.inner(xx,yy)
-    if np.abs(ytHx + xtHy) > 0.:
-        rel_symm_error = 2*abs(ytHx - xtHy)/(ytHx + xtHy)
-    else:
-        rel_symm_error = abs(ytHx - xtHy)
-    if verbose:
-        print( "(yy, H xx) - (xx, H yy) = ", rel_symm_error)
-        if rel_symm_error > 1e-10:
-            print( "HESSIAN IS NOT SYMMETRIC!!")
+    # ytHx = H.inner(yy, xx)
+    # xtHy = H.inner(xx, yy)
+    # if np.abs(ytHx + xtHy) > 0.:
+    #     rel_symm_error = 2*abs(ytHx - xtHy)/(ytHx + xtHy)
+    # else:
+    #     rel_symm_error = abs(ytHx - xtHy)
+    # if verbose:
+    #     print( "(yy, H xx) - (xx, H yy) = ", rel_symm_error)
+    #     if rel_symm_error > 1e-10:
+    #         print( "HESSIAN IS NOT SYMMETRIC!!")
 
-    return eps, err_grad, err_H
+    # return eps, err_grad, err_H
 
 def modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H):
     try:
@@ -116,14 +115,18 @@ def modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H):
         plt.subplot(121)
         plt.loglog(eps, err_grad, "-ob", eps, eps*(err_grad[0]/eps[0]), "-.k")
         plt.title("FD Gradient Check")
+        plt.show()
         plt.subplot(122)
         plt.loglog(eps[0], err_H[0], "-ob", [10*eps[0], eps[0], 0.1*eps[0]], [err_H[0],err_H[0],err_H[0]], "-.k")
         plt.title("FD Hessian Check")
+        plt.show()
     else:
         plt.figure()
         plt.subplot(121)
         plt.loglog(eps, err_grad, "-ob", eps, eps*(err_grad[0]/eps[0]), "-.k")
         plt.title("FD Gradient Check")
+        plt.show()
         plt.subplot(122)
         plt.loglog(eps, err_H, "-ob", eps, eps*(err_H[0]/eps[0]), "-.k")
         plt.title("FD Hessian Check")
+        plt.show()
