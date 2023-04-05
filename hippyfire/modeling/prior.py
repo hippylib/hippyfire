@@ -120,6 +120,10 @@ class _BilaplacianR:
         self.Msolver.solve(self.help2, self.help1)
         matVecMult(self.A, self.help2, y)
 
+    def getFunctionSpace(self): # needed in CGSolverSteihaug. Cannot create vector simply with comm object
+        form = self.A.form
+        V = form.arguments()[0].function_space()
+        return V
 
 class _BilaplacianRsolver():
     """
