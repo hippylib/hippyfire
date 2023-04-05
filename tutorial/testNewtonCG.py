@@ -145,3 +145,17 @@ solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
 solver.set_operator(HessApply)
 solver.set_preconditioner(model.Rsolver())
 solver.solve(mhat, (-1. * mg))
+mg_what = mg.inner(mhat)
+
+alpha = 1.0
+descent = 0
+n_backtrack = 0
+
+z_star[PARAMETER].assign(0.0)
+z_star[PARAMETER].axpy(1., z[PARAMETER])
+z_star[PARAMETER].axpy(alpha, mhat)
+z_star[STATE].assign(0.0)
+z_star[STATE].axpy(1., z[STATE])
+model.solveFwd(z_star[STATE], z_star)
+
+cost_new, reg_new, misfit_new = model.cost(z_star)
