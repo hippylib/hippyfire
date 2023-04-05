@@ -102,9 +102,9 @@ class CGSolverSteihaug:
         """
         self.A = A
         self.A.init_vector(self.r, 0)
-        self.z = fd.Function(u1.function_space()).vector()
-        self.d = fd.Function(u1.function_space()).vector()
-        self.Ad = fd.Function(u1.function_space()).vector()
+        self.A.init_vector(self.z, 0)
+        self.A.init_vector(self.d, 0)
+        self.A.init_vector(self.Ad, 0)
 
     def set_preconditioner(self, B_solver):
         """
