@@ -155,8 +155,8 @@ class _BilaplacianRsolver():
         matVecMult(self.M, self.help1, self.help2)
         # nit += self.Asolver.solve(x, self.help2)
         # In Firedrake, Asolver.solve() does not permit passing an operator as an argument. Hence, created Msolver identical to Asolver
-        self.Msolver = CreateSolver(self.M, v1.function_space().mesh().mpi_comm(), ksp_type="cg", pc_type="gamg")
-        self.Msolver.solve(self.help1, self.help2)
+        # self.Msolver = CreateSolver(self.M, v1.function_space().mesh().mpi_comm(), ksp_type="cg", pc_type="gamg")
+        self.Asolver.solve(self.help1, self.help2)
         # return nit
 
 
