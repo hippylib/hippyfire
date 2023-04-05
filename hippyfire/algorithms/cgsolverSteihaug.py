@@ -94,3 +94,34 @@ class CGSolverSteihaug:
         self.Ad = fd.Function(Vh).vector()
         self.d = fd.Function(Vh).vector()
         self.Bx = fd.Function(Vh).vector()
+
+    def set_operator(self, A):
+        """
+        Set the operator :math:`A`.
+        """
+        self.A = A
+        v1, u1 = self.A.form.arguments()
+        # self.A.init_vector(self.r,0)
+        self.r = fd.Function(u1.function_space()).vector() # u1.function_space() corresponds to row space. v1.function_space corresponds to column space
+        # self.A.init_vector(self.z,0)
+        self.z = fd.Function(u1.function_space()).vector()
+        # self.A.init_vector(self.d,0)
+        self.d = fd.Function(u1.function_space()).vector()
+        # self.A.init_vector(self.Ad,0)
+        self.Ad = fd.Function(u1.function_space()).vector()
+
+    def set_preconditioner(self, B_solver):
+        """
+        Set the preconditioner :math:`B`.
+        """
+        self.B_solver = B_solver
+
+    def set_TR(self, radius, B_op):
+        assert self.parameters["zero_initial_guess"]
+        self.TR_radius_2 = radius * radius
+        self.update_x = self.update_x_with_TR
+        self.B_op = B_op
+        # assuming B_op is a Firedrake matrix
+        v1, u1 = self.B_op.form.arguments()
+        # self.B_op.init_vector(self.Bx,0)
+        self.Bx = fd.Function(u1.function_space()).vector()
