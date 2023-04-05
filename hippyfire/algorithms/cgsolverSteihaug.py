@@ -101,14 +101,9 @@ class CGSolverSteihaug:
         Set the operator :math:`A`.
         """
         self.A = A
-        v1, u1 = self.A.form.arguments()
-        # self.A.init_vector(self.r,0)
-        self.r = fd.Function(u1.function_space()).vector() # u1.function_space() corresponds to row space. v1.function_space corresponds to column space
-        # self.A.init_vector(self.z,0)
+        self.A.init_vector(self.r, 0)
         self.z = fd.Function(u1.function_space()).vector()
-        # self.A.init_vector(self.d,0)
         self.d = fd.Function(u1.function_space()).vector()
-        # self.A.init_vector(self.Ad,0)
         self.Ad = fd.Function(u1.function_space()).vector()
 
     def set_preconditioner(self, B_solver):
