@@ -150,7 +150,7 @@ class _BilaplacianRsolver():
     def solve(self, x, b):
         # Firedrake's LinearSolver.solve() has no return value, unlike Dolfin's--which returns #iterations.
         # nit = self.Asolver.solve(self.help1, b)
-        self.Asolver.solver(self.help1, b)
+        self.Asolver.solve(self.help1, b)
         matVecMult(self.M, self.help1, self.help2)
         # nit += self.Asolver.solve(x, self.help2)
         self.Asolver.solve(self.M, self.help1, self.help2)
