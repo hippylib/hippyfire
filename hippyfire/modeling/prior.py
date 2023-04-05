@@ -150,13 +150,10 @@ class _BilaplacianRsolver():
     def solve(self, x, b):
         # Firedrake's LinearSolver.solve() has no return value, unlike Dolfin's--which returns #iterations.
         # nit = self.Asolver.solve(self.help1, b)
-        v1 = self.M.form.arguments()[0]
         self.Asolver.solve(self.help1, b)
         matVecMult(self.M, self.help1, self.help2)
         # nit += self.Asolver.solve(x, self.help2)
-        # In Firedrake, Asolver.solve() does not permit passing an operator as an argument. Hence, created Msolver identical to Asolver
-        # self.Msolver = CreateSolver(self.M, v1.function_space().mesh().mpi_comm(), ksp_type="cg", pc_type="gamg")
-        self.Asolver.solve(self.help1, self.help2)
+        self.Asolver.solve(x, self.help2)
         # return nit
 
 
