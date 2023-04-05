@@ -269,3 +269,132 @@ class ReducedSpaceNewtonCG:
         self.final_grad_norm = gradnorm
         self.final_cost = cost_new
         return x
+
+    def _solve_tr(self, x):
+        rel_tol = self.parameters["rel_tolerance"]
+        abs_tol = self.parameters["abs_tolerance"]
+        max_iter = self.parameters["max_iter"]
+        print_level = self.parameters["print_level"]
+        GN_iter = self.parameters["GN_iter"]
+        cg_coarse_tolerance = self.parameters["cg_coarse_tolerance"]
+        cg_max_iter = self.parameters["cg_max_iter"]
+
+        eta_TR = self.parameters["TR"]["eta"]
+        delta_TR = None
+
+
+        self.model.solveFwd(x[STATE], x)
+
+        self.it = 0
+        self.converged = False
+        self.ncalls += 1
+
+        mhat = self.model.generate_vector(PARAMETER)
+        R_mhat = self.model.generate_vector(PARAMETER)
+
+        mg = self.model.generate_vector(PARAMETER)
+
+        x_star = [None, None, None] + x[3::]
+        x_star[STATE] = self.model.generate_vector(STATE)
+        x_star[PARAMETER] = self.model.generate_vector(PARAMETER)
+
+        cost_old, reg_old, misfit_old = self.model.cost(x)
+        while (self.it < max_iter) and not self.converged:
+            self.model.solveAdj(x[ADJOINT], x)
+
+            self.model.setPointForHessianEvaluations(x, gauss_newton_approx=(self.it < GN_iter))
+            gradnorm = self.model.evalGradientParameter(x, mg)
+
+            if self.it == 0:
+                gradnorm_ini = gradnorm
+                tol = max(abs_tol, gradnorm_ini * rel_tol)
+
+            # check if solution is reached
+            if (gradnorm < tol) and (self.it > 0):
+                self.converged = True
+                self.reason = 1
+                break
+
+            self.it += 1
+
+
+            tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
+
+            HessApply = ReducedHessian(self.model)
+            solver = CGSolverSteihaug(self.model.prior.R.getFunctionSpace(), comm=self.model.prior.R.mpi_comm())
+            solver.set_operator(HessApply)
+            solver.set_preconditioner(self.model.Rsolver())
+            if self.it > 1:
+                solver.set_TR(delta_TR, self.model.prior.R)
+            solver.parameters["rel_tolerance"] = tolcg
+            self.parameters["max_iter"] = cg_max_iter
+            solver.parameters["zero_initial_guess"] = True
+            solver.parameters["print_level"] = print_level - 1
+
+            solver.solve(mhat, (-1. * mg))
+            self.total_cg_iter += HessApply.ncalls
+
+            if self.it == 1:
+                self.model.prior.R.mult(mhat, R_mhat)
+                mhat_Rnorm = R_mhat.inner(mhat)
+                delta_TR = max(math.sqrt(mhat_Rnorm), 1)
+
+            x_star[PARAMETER].assign(0.0)
+            x_star[PARAMETER].axpy(1., x[PARAMETER])
+            x_star[PARAMETER].axpy(1., mhat)   #m_star = m +mhat
+            x_star[STATE].assign(0.0)
+            x_star[STATE].axpy(1., x[STATE])      #u_star = u
+            self.model.solveFwd(x_star[STATE], x_star)
+            cost_star, reg_star, misfit_star = self.model.cost(x_star)
+            ACTUAL_RED = cost_old - cost_star
+            # Calculate Predicted Reduction
+            H_mhat = self.model.generate_vector(PARAMETER)
+            H_mhat.assign(0.0)
+            HessApply.mult(mhat, H_mhat)
+            mg_mhat = mg.inner(mhat)
+            PRED_RED = - 0.5 * mhat.inner(H_mhat) - mg_mhat
+            # print( "PREDICTED REDUCTION", PRED_RED, "ACTUAL REDUCTION", ACTUAL_RED)
+            rho_TR = ACTUAL_RED/PRED_RED
+
+
+            # Nocedal and Wright Trust Region conditions (page 69)
+            if rho_TR < 0.25:
+                delta_TR *= 0.5
+            elif rho_TR > 0.75 and solver.reasonid == 3:
+                delta_TR *= 2.0
+
+
+            # print( "rho_TR", rho_TR, "eta_TR", eta_TR, "rho_TR > eta_TR?", rho_TR > eta_TR , "\n")
+            if rho_TR > eta_TR:
+                x[PARAMETER].assign(0.0)
+                x[PARAMETER].axpy(1.0, x_star[PARAMETER])
+                x[STATE].assign(0.0)
+                x[STATE].axpy(1.0, x_star[STATE])
+                cost_old = cost_star
+                reg_old = reg_star
+                misfit_old = misfit_star
+                accept_step = True
+            else:
+                accept_step = False
+
+            if self.callback:
+                self.callback(self.it, x)
+
+            if (print_level >= 0) and (self.it == 1):
+                print( "\n{0:3} {1:3} {2:15} {3:15} {4:15} {5:15} {6:14} {7:14} {8:14} {9:11} {10:14}".format(
+                      "It", "cg_it", "cost", "misfit", "reg", "(g,dm)", "||g||L2", "TR Radius", "rho_TR", "Accept Step","tolcg") )
+
+            if print_level >= 0:
+                print( "{0:3d} {1:3d} {2:15e} {3:15e} {4:15e} {5:15e} {6:14e} {7:14e} {8:14e} {9:11} {10:14e}".format(
+                        self.it, HessApply.ncalls, cost_old, misfit_old, reg_old, mg_mhat, gradnorm, delta_TR, rho_TR, accept_step,tolcg) )
+
+
+            #TR radius can make this term arbitrarily small and prematurely exit.
+            if -mg_mhat <= self.parameters["gdm_tolerance"]:
+                self.converged = True
+                self.reason = 3
+                break
+
+        self.final_grad_norm = gradnorm
+        self.final_cost = cost_old
+        return x
