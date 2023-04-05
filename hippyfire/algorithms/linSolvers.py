@@ -15,7 +15,8 @@
 
 import firedrake as fd
 
-def CreateSolver(A, comm, ksp_type='preonly', pc_type='lu'):
+def CreateSolver(A, comm=fd.COMM_WORLD, ksp_type='preonly', pc_type='lu'):
+    # since comm is not used currrently, added a default value to create solvers without Vh
     if not isinstance(A, (fd.matrix.Matrix)):
         raise TypeError("Provided Operator is a '%s', not a Firedrake Matrix".type(A).__name__)
     # DEFAULT_KSP_PARAMETERS = {'ksp_rtol': 1e-07, 'ksp_type': 'preonly',
