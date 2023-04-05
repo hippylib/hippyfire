@@ -123,12 +123,12 @@ class CGSolverSteihaug:
         self.Bx = fd.Function(u1.function_space()).vector()
 
     def update_x_without_TR(self, x, alpha, d):
-        x.axpy(alpha, d)
+        x.axpy(float(alpha), d)
         return False
 
     def update_x_with_TR(self, x, alpha, d):
         x_bk = x.copy()
-        x.axpy(alpha, d)
+        x.axpy(float(alpha), d)
         self.Bx.assign(0.0)
         # self.B_op.mult(x, self.Bx)
         matVecMult(self.B_op, x, self.Bx)
@@ -206,8 +206,9 @@ class CGSolverSteihaug:
                 print("Converged in ", self.iter, " iterations with final norm", self.final_norm)
             return
 
-        # self.A.mult(self.d, self.Ad)
-        matVecMult(self.A, self.d, self.Ad)
+        self.A.mult(self.d, self.Ad)
+
+
         den = self.Ad.inner(self.d)
 
         if den <= 0.0:
@@ -237,7 +238,7 @@ class CGSolverSteihaug:
                     print("Converged in ", self.iter, " iterations with final norm ", self.final_norm)
                 break
 
-            self.r.axpy(-alpha, self.Ad)  # r = r - alpha A d
+            self.r.axpy(float(-alpha), self.Ad)  # r = r - alpha A d
 
             self.B_solver.solve(self.z, self.r)     # z = B^-1 r
             betanom = self.r.inner(self.z)
@@ -268,8 +269,8 @@ class CGSolverSteihaug:
             self.d *= beta
             self.d.axpy(1., self.z)  # d = z + beta d
 
-            # self.A.mult(self.d,self.Ad)
-            matVecMult(self.A, self.d, self.Ad)
+            self.A.mult(self.d, self.Ad)
+
 
             den = self.d.inner(self.Ad)
 
