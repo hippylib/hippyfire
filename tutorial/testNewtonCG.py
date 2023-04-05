@@ -22,7 +22,7 @@ from utils.rand import randomGen
 from algorithms.linalg import matVecMult
 
 from algorithms.cgsolverSteihaug import CGSolverSteihaug
-
+from modeling.reducedHessian import ReducedHessian
 # Set up mesh and finite element spaces
 ndim = 2
 nx = 64
@@ -118,3 +118,30 @@ z[STATE] = model.generate_vector(STATE)
 z[ADJOINT] = model.generate_vector(ADJOINT)
 model.solveFwd(z[STATE], z)
 mhat = model.generate_vector(PARAMETER)
+mg = model.generate_vector(PARAMETER)
+z_star = [None, None, None] + z[3::]
+z_star[STATE] = model.generate_vector(STATE)
+z_star[PARAMETER] = model.generate_vector(PARAMETER)
+cost_old, _, _ = model.cost(z)
+
+it = 0
+max_iter = 20
+rel_tol = 1e-6
+abs_tol = 1e-12
+GN_iter = 5
+cg_coarse_tolerance = .5
+cg_max_iter = 100
+coverged = False
+
+model.solveAdj(z[ADJOINT], z)
+model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
+gradnorm = model.evalGradientParameter(z, mg)
+
+gradnorm_ini = gradnorm
+tol = max(abs_tol, gradnorm_ini * rel_tol)
+tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
+HessApply = ReducedHessian(model)
+solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
+solver.set_operator(HessApply)
+solver.set_preconditioner(model.Rsolver())
+solver.solve(mhat, (-1. * mg))
