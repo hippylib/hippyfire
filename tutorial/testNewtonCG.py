@@ -22,11 +22,14 @@ from utils.rand import randomGen
 from algorithms.linalg import matVecMult
 
 from algorithms.cgsolverSteihaug import CGSolverSteihaug
+from algorithms.NewtonCG import ReducedSpaceNewtonCG
 from modeling.reducedHessian import ReducedHessian
+
+
 # Set up mesh and finite element spaces
 ndim = 2
-nx = 64
-ny = 64
+nx = 128
+ny = 128
 mesh = fd.UnitSquareMesh(nx, ny)
 Vh2 = fd.FunctionSpace(mesh, 'Lagrange', 2)
 Vh1 = fd.FunctionSpace(mesh, 'Lagrange', 1)
@@ -111,51 +114,72 @@ model = Model(pde, pr, misfit)
 # print(err_grad)
 # print(err_H)
 
+
 # verifying NewtonCG
+# m = pr.mean.copy()
+# z = [None, m, None]
+# z[STATE] = model.generate_vector(STATE)
+# z[ADJOINT] = model.generate_vector(ADJOINT)
+# model.solveFwd(z[STATE], z)
+# mhat = model.generate_vector(PARAMETER)
+# mg = model.generate_vector(PARAMETER)
+# z_star = [None, None, None] + z[3::]
+# z_star[STATE] = model.generate_vector(STATE)
+# z_star[PARAMETER] = model.generate_vector(PARAMETER)
+# cost_old, _, _ = model.cost(z)
+
+# it = 0
+# max_iter = 20
+# rel_tol = 1e-6
+# abs_tol = 1e-12
+# GN_iter = 5
+# cg_coarse_tolerance = .5
+# cg_max_iter = 100
+# coverged = False
+
+# model.solveAdj(z[ADJOINT], z)
+# model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
+# gradnorm = model.evalGradientParameter(z, mg)
+
+# gradnorm_ini = gradnorm
+# tol = max(abs_tol, gradnorm_ini * rel_tol)
+# tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
+# HessApply = ReducedHessian(model)
+# solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
+# solver.set_operator(HessApply)
+# solver.set_preconditioner(model.Rsolver())
+# solver.solve(mhat, (-1. * mg))
+# mg_what = mg.inner(mhat)
+
+# alpha = 1.0
+# descent = 0
+# n_backtrack = 0
+
+# z_star[PARAMETER].assign(0.0)
+# z_star[PARAMETER].axpy(1., z[PARAMETER])
+# z_star[PARAMETER].axpy(alpha, mhat)
+# z_star[STATE].assign(0.0)
+# z_star[STATE].axpy(1., z[STATE])
+# model.solveFwd(z_star[STATE], z_star)
+
+# cost_new, reg_new, misfit_new = model.cost(z_star)
+
 m = pr.mean.copy()
-z = [None, m, None]
-z[STATE] = model.generate_vector(STATE)
-z[ADJOINT] = model.generate_vector(ADJOINT)
-model.solveFwd(z[STATE], z)
-mhat = model.generate_vector(PARAMETER)
-mg = model.generate_vector(PARAMETER)
-z_star = [None, None, None] + z[3::]
-z_star[STATE] = model.generate_vector(STATE)
-z_star[PARAMETER] = model.generate_vector(PARAMETER)
-cost_old, _, _ = model.cost(z)
+solver = ReducedSpaceNewtonCG(model)
+solver.parameters["rel_tolerance"] = 1e-6
+solver.parameters["abs_tolerance"] = 1e-12
+solver.parameters["max_iter"]      = 25
+solver.parameters["GN_iter"] = 5
+solver.parameters["globalization"] = "LS"
+solver.parameters["LS"]["c_armijo"] = 1e-4
 
-it = 0
-max_iter = 20
-rel_tol = 1e-6
-abs_tol = 1e-12
-GN_iter = 5
-cg_coarse_tolerance = .5
-cg_max_iter = 100
-coverged = False
+x = solver.solve([None, m, None])
 
-model.solveAdj(z[ADJOINT], z)
-model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
-gradnorm = model.evalGradientParameter(z, mg)
+if solver.converged:
+    print( "\nConverged in ", solver.it, " iterations.")
+else:
+    print( "\nNot Converged")
 
-gradnorm_ini = gradnorm
-tol = max(abs_tol, gradnorm_ini * rel_tol)
-tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
-HessApply = ReducedHessian(model)
-solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
-solver.set_operator(HessApply)
-solver.set_preconditioner(model.Rsolver())
-solver.solve(mhat, (-1. * mg))
-mg_what = mg.inner(mhat)
-
-alpha = 1.0
-descent = 0
-n_backtrack = 0
-
-z_star[PARAMETER].assign(0.0)
-z_star[PARAMETER].axpy(1., z[PARAMETER])
-z_star[PARAMETER].axpy(alpha, mhat)
-z_star[STATE].assign(0.0)
-z_star[STATE].axpy(1., z[STATE])
-model.solveFwd(z_star[STATE], z_star)
-
-cost_new, reg_new, misfit_new = model.cost(z_star)
+print( "Termination reason: ", solver.termination_reasons[solver.reason] )
+print( "Final gradient norm: ", solver.final_grad_norm )
+print( "Final cost: ", solver.final_cost )
