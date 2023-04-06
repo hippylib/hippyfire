@@ -187,6 +187,15 @@ print( "Final cost: ", solver.final_cost )
 # printing graphs of State and Parameter
 
 # plt.figure(figsize=(15, 5))
-fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), subplot_loc=121, mytitle='STATE')
-fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), subplot_loc=122, mytitle='PARAMETER')
+
+
+fig, ax = plt.subplots(1, 2, figsize=(16, 8))
+fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), label='STATE', axes=ax[0])
+# ax[0].legend()
+ax[0].set_title("State space")
+plt.colorbar(ax[0].collections[0])
+fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), label='PARAMETER', axes=ax[1])
+# ax[1].legend()
+ax[1].set_title("Parameter space")
+plt.colorbar(ax[1].collections[0])
 plt.show()
