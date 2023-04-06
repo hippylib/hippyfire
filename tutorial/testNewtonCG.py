@@ -28,8 +28,8 @@ from modeling.reducedHessian import ReducedHessian
 
 # Set up mesh and finite element spaces
 ndim = 2
-nx = 128
-ny = 128
+nx = 64
+ny = 64
 mesh = fd.UnitSquareMesh(nx, ny)
 Vh2 = fd.FunctionSpace(mesh, 'Lagrange', 2)
 Vh1 = fd.FunctionSpace(mesh, 'Lagrange', 1)
@@ -183,3 +183,10 @@ else:
 print( "Termination reason: ", solver.termination_reasons[solver.reason] )
 print( "Final gradient norm: ", solver.final_grad_norm )
 print( "Final cost: ", solver.final_cost )
+
+# printing graphs of State and Parameter
+
+# plt.figure(figsize=(15, 5))
+fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), subplot_loc=121, mytitle='STATE')
+fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), subplot_loc=122, mytitle='PARAMETER')
+plt.show()
