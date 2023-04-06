@@ -110,7 +110,7 @@ class ReducedHessian:
         y.axpy(1., self.yhelp)
         self.model.applyWmu(self.uhat, self.yhelp)
         y.axpy(-1., self.yhelp)
-        print(self.model.problem.Wmu.M.handle.size)
+        # print(self.model.problem.Wmu.M.handle.size)
 
         if not self.misfit_only:
             self.model.applyR(x, self.yhelp)
