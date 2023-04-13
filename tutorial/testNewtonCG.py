@@ -6,6 +6,7 @@ import firedrake as fd
 import ufl
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 # import nb
 
 sys.path.insert(0, os.environ.get('HIPPYFIRE_BASE_DIR'))
@@ -38,7 +39,7 @@ print( "Number of dofs: STATE={0}, PARAMETER={1}, ADJOINT={2}".format(
     Vh[STATE].dim(), Vh[PARAMETER].dim(), Vh[ADJOINT].dim()) )
 
 # generate true parameter
-mtrue = randomGen(Vh[STATE])
+mtrue = randomGen(Vh[PARAMETER])
 
 # Set up forward problem
 u_bdr = fd.SpatialCoordinate(mesh)[1]
@@ -67,9 +68,19 @@ alpha = math.pi / 4
 pr = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, robin_bc=True)
 x = fd.SpatialCoordinate(mesh)
 mtrue = fd.interpolate(fd.sin(x[0])*fd.cos(x[1]), Vh[PARAMETER]).vector()
+print(type(mtrue))
 m0 = fd.interpolate(fd.sin(x[0]), Vh[PARAMETER]).vector()
-objs = [fd.Function(Vh[PARAMETER], mtrue), fd.Function(Vh[PARAMETER], pr.mean)]
-# plt.plot(objs)
+objs = [fd.Function(Vh[PARAMETER], mtrue.vector()), fd.Function(Vh[PARAMETER], pr.mean)]
+fig, ax = plt.subplots(1, 2, figsize=(16, 8))
+fd.tricontourf(objs[0], antialiased=True, label='True Parameter', axes=ax[0])
+# ax[0].legend()
+ax[0].set_title("True Parameter")
+plt.colorbar(ax[0].collections[0])
+fd.tricontourf(objs[1], label='PARAMETER', axes=ax[1])
+# ax[1].legend()
+ax[1].set_title("Prior Mean")
+plt.colorbar(ax[1].collections[0])
+plt.show()
 
 # Set up misfit
 ntargets = 50
@@ -86,12 +97,12 @@ rel_noise = 0.01
 misfit = ContinuousStateObservation(Vh[STATE], ufl.dx, bcs=bc0)
 misfit.noise_variance = 1e-4
 utrue = pde.generate_state()
-x = [utrue, mtrue, None]
+x = [utrue, mtrue.vector(), None]
 pde.solveFwd(x[STATE], x)
 
 # print(misfit.W.M.handle.size)
 misfit.d.axpy(1., utrue)
-#misfit.d.axpy(np.sqrt(misfit.noise_variance), randomGen(Vh[STATE]).vector())
+misfit.d.axpy(float(np.sqrt(misfit.noise_variance)), randomGen(Vh[STATE]).vector())
 # print(misfit.d.get_local())
 vmax = max( utrue.get_local().max(), misfit.d.get_local().max() )
 vmin = min( utrue.get_local().min(), misfit.d.get_local().min() )
@@ -116,53 +127,53 @@ model = Model(pde, pr, misfit)
 
 
 # verifying NewtonCG
-# m = pr.mean.copy()
-# z = [None, m, None]
-# z[STATE] = model.generate_vector(STATE)
-# z[ADJOINT] = model.generate_vector(ADJOINT)
-# model.solveFwd(z[STATE], z)
-# mhat = model.generate_vector(PARAMETER)
-# mg = model.generate_vector(PARAMETER)
-# z_star = [None, None, None] + z[3::]
-# z_star[STATE] = model.generate_vector(STATE)
-# z_star[PARAMETER] = model.generate_vector(PARAMETER)
-# cost_old, _, _ = model.cost(z)
+m = pr.mean.copy()
+z = [None, m, None]
+z[STATE] = model.generate_vector(STATE)
+z[ADJOINT] = model.generate_vector(ADJOINT)
+model.solveFwd(z[STATE], z)
+mhat = model.generate_vector(PARAMETER)
+mg = model.generate_vector(PARAMETER)
+z_star = [None, None, None] + z[3::]
+z_star[STATE] = model.generate_vector(STATE)
+z_star[PARAMETER] = model.generate_vector(PARAMETER)
+cost_old, _, _ = model.cost(z)
 
-# it = 0
-# max_iter = 20
-# rel_tol = 1e-6
-# abs_tol = 1e-12
-# GN_iter = 5
-# cg_coarse_tolerance = .5
-# cg_max_iter = 100
-# coverged = False
+it = 0
+max_iter = 20
+rel_tol = 1e-6
+abs_tol = 1e-12
+GN_iter = 5
+cg_coarse_tolerance = .5
+cg_max_iter = 100
+coverged = False
 
-# model.solveAdj(z[ADJOINT], z)
-# model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
-# gradnorm = model.evalGradientParameter(z, mg)
+model.solveAdj(z[ADJOINT], z)
+model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
+gradnorm = model.evalGradientParameter(z, mg)
 
-# gradnorm_ini = gradnorm
-# tol = max(abs_tol, gradnorm_ini * rel_tol)
-# tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
-# HessApply = ReducedHessian(model)
-# solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
-# solver.set_operator(HessApply)
-# solver.set_preconditioner(model.Rsolver())
-# solver.solve(mhat, (-1. * mg))
-# mg_what = mg.inner(mhat)
+gradnorm_ini = gradnorm
+tol = max(abs_tol, gradnorm_ini * rel_tol)
+tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
+HessApply = ReducedHessian(model)
+solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
+solver.set_operator(HessApply)
+solver.set_preconditioner(model.Rsolver())
+solver.solve(mhat, (-1. * mg))
+mg_what = mg.inner(mhat)
 
-# alpha = 1.0
-# descent = 0
-# n_backtrack = 0
+alpha = 1.0
+descent = 0
+n_backtrack = 0
 
-# z_star[PARAMETER].assign(0.0)
-# z_star[PARAMETER].axpy(1., z[PARAMETER])
-# z_star[PARAMETER].axpy(alpha, mhat)
-# z_star[STATE].assign(0.0)
-# z_star[STATE].axpy(1., z[STATE])
-# model.solveFwd(z_star[STATE], z_star)
+z_star[PARAMETER].assign(0.0)
+z_star[PARAMETER].axpy(1., z[PARAMETER])
+z_star[PARAMETER].axpy(alpha, mhat)
+z_star[STATE].assign(0.0)
+z_star[STATE].axpy(1., z[STATE])
+model.solveFwd(z_star[STATE], z_star)
 
-# cost_new, reg_new, misfit_new = model.cost(z_star)
+cost_new, reg_new, misfit_new = model.cost(z_star)
 
 m = pr.mean.copy()
 solver = ReducedSpaceNewtonCG(model)
@@ -173,7 +184,11 @@ solver.parameters["GN_iter"] = 5
 solver.parameters["globalization"] = "LS"
 solver.parameters["LS"]["c_armijo"] = 1e-4
 
+start = time.time()
 x = solver.solve([None, m, None])
+end = time.time()
+print(end - start, "Executiion time")
+
 
 if solver.converged:
     print( "\nConverged in ", solver.it, " iterations.")
@@ -190,7 +205,7 @@ print( "Final cost: ", solver.final_cost )
 
 
 fig, ax = plt.subplots(1, 2, figsize=(16, 8))
-fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), label='STATE', axes=ax[0])
+fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), antialiased=True, label='STATE', axes=ax[0])
 # ax[0].legend()
 ax[0].set_title("State space")
 plt.colorbar(ax[0].collections[0])
