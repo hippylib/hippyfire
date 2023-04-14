@@ -1,0 +1,72 @@
+\chapter{Theory Behind Inverse Problems}
+\label{chapter: inverse-problems}
+This section discusses two popular techniques adopted to solve inverse problems---namely the determinstic framework \cite{laloy2019gradient, vogel2002deterministic} and Bayesian framework \cite{dashti2017bayesian, stuart2010inverse} for inverse problems. \texttt{hIPPYfire} currently implements an infinite-dimensional Bayesian framework \cite{thanh2013infinitebayesian}, and consequently, additional emphasis has been placed on the theory of the latter framework.
+
+Lower-case italic font is used to represent scalar valued functions like the parameter \textit{m}, state \textit{u}, observed data \textit{d} etc. The discretized equivalents of these functions $\mathbb{R}^n$ (where \textit{n} is the discretization dimension) are denoted with a bold, lowercase font, such as \textbf{m}, \textbf{u}, \textbf{d} etc. Vector functions in $\mathbb{R}^2$ or $\mathbb{R}^3$ are denoted in italic, bold, lowercase font, such as \textbf{\textit{v}} (velocity field). Infinite-dimensional spaces are represented through calligraphic font, such as $\mathcal{A}$. Scalars are denoted by using Greek font.
+
+
+\section{Deterministic Inversion}
+\label{sec:det_inversion}
+
+The solution of an inverse problem involves the inference of the parameter \textit{m} $\in \mathcal{X}$, given data \textit{\textbf{d}} $ \in \mathbb{R}^q$ by using the following \textit{parameter-to-observable} map:
+\begin{equation}
+\label{eqn:fwd_map}
+    \mathcal{F}(m) = d + \eta
+\end{equation}
+
+Similar to \textit{hIPPYlib}, the linear or non-linear \textit{parameter-to-observable (p2o)} map is depicted as $\mathcal{F} : \mathcal{M} \rightarrow \mathbb{R}^q$. Note that $\mathcal{M} \subseteq L^2(\mathcal{D})$, where $\mathcal{D} \subset \mathbb{R}^d$ is a bounded domain.  It is important to distinguish between the \textit{p2o} map the forward problem. The forward problem is a map from the parameter \textit{m} to the PDEs that govern the physical system, i.e., $m \rightarrow r(u, m)$, where $r(u, m)$ is the residual and \textit{u} $\in \mathcal{V}$ is a state variable and $\mathcal{V}$ is a Hilbert Space of functions defined on $\mathcal{V}$.
+
+The forward problem is one of the three components of the forward map $\mathcal{F}$. The second component is the map $r: \mathcal{V} \times \mathcal{M} \rightarrow \mathcal{V}^*$. This map involves the solution of the governing PDEs. The third component is the observation operator $\mathcal(B)$, which maps \textit{u} to the observable \textit{y} $\in \mathbb{R}^q$, which can be high or infinite dimensional. Thus, the map $\mathcal{F}$ is now defined as:
+\begin{equation}
+    \mathcal{F}(m) = \mathcal{B}(u), given, r(u, m) = 0
+\end{equation}
+The noise, $\eta$, accounts for the difference between the observable \textit{y} and data \textit{\textbf{d}} and is a modelled as a Gaussian centred at 0 with a covariance $\Gamma_{noise}$. The source of the noise can be traced to imprecise measurements, model, and/or numerical errors. Although their exact values are not known, their statistical information (mean, variance, etc.), are known.
+
+The ill-posedness of inverse problems \cite{tikhonov1963solution}, as discussed earlier, can primarily be attributed to their instability. The collapse of the spectrum of $\mathcal{F}$ is the main culprit behind this phenomenon. The small eigenvalues of $\mathcal{F}$, which correspond to eigen function modes below the noise threshold, cause the noise in the data to blow up exponentially---rendering the inversion useless. The most obvious solution to this problem would be to discard the irrelevant eigenvalues. Although a truncated SVD presents a viable solution to the problem, the \textit{Tikhonov Regularization} technique \cite{golub1999tikhonov} allows us to formulate the inverse problem as an optimization problem instead of applying a filter. This can be mathematically represented as a non-linear least squares optimization problem:
+\begin{equation}
+\label{eqn:deterministic2}
+    \underset{m \in \mathcal{M}}{min}\mathcal{J}(m) := \frac{1}{2} ||\mathcal{F}(m) - \textbf{\textit{d}} ||^2_{\Gamma^{-1}_{noise}} + \mathcal{R}(m)
+\end{equation}
+$\mathcal{J}(m)$ represents the cost functional. The first term on the RHS represents the misfit between $\mathcal{F}(m)$, weighted by the inverse noise covariance $\eta^{-1}_{noise}$, and data \textit{\textbf{d}}. The regularization parameter, $\mathcal{R}(m)$, ensures smoothness on the inversion parameter \textit{m}.
+
+Information on the first and second derivatives (gradient and Hessian, respectively) is required to solve the nonlinear optimization problem. Lagrangian techniques \cite{troltzsch2010optimal} were adopted in the development of the \texttt{hIPPYlib} library \cite{villa2018hippylib} to compute the actions of the Hessian and gradient. \texttt{hIPPYfire} makes use of the \textit{Inexact Newton Conjugate Gradient Method} to solve the optimization problem, similar to the flow followed by \texttt{hIPPYlib} \cite{villa2018hippylib}.
+
+The regularization technique of solving inverse problems \eqref{eqn:fwd_map}, although scalable with efficient inverse solvers, fails to account for uncertainties in the inferred parameters. This can be attributed to the fact that this approach only provides a point estimate of the inverse problem. Thus, it is not very useful for ill-posed problems with non-negligible noise---thereby prompting the conception of the Bayesian framework.
+
+\section{Bayesian Inversion}
+\label{sec:bayesian_inversion}
+The Bayesian framework treats the inverse problem as statistical inference over a space of uncertain parameters. It computes the probability of the parameter being conditioned on the data as a \textit{posterior probability distribution}. This framework accounts for any assumptions and constraints on the parameter before data collection and depicts them through a \textit{prior distribution}. This is combined with the \textit{likelihood} that the observed data could be obtained from a given set of parameters. This is achieved by analyzing the posterior through mean estimation, sample drawing, analysis of the covariance etc.
+
+However, complete characterization of the posterior is impractical for expensive PDE forward models, especially for ones in high dimensions that have been obtained after the discretization of infinite-dimensional parameter fields. Recently developed techniques, however, take advantage of the low dimensionality to address these problems---similar to the properties of the deterministic framework. Some of these include forward model reduction \cite{galbally2010non}, Markov chain Monte-Carlo techniques that utilize the log-likelihood Hessian approximations \cite{petra2012inexact}, randomize-then-optimize techniques \cite{wang2018randomized}, etc. \texttt{hIPPYfire}, much like its predecessor \cite{villa2018hippylib}, uses \textit{Lagrangian approximation} of the posterior. This is extremely scalable and efficient---especially if the same properties that made the regularized Newton-CG method so powerful are used.
+
+The infinite-dimensional Baye's formula is given as:
+\begin{equation}
+    \label{eqn:posterior}
+    \frac{d\mu_{post}}{d\mu_{prior}} \propto \pi_{like}(\textbf{d}|m)
+\end{equation}
+The LHS and RHS represent the Radon-Nikodym derivative \cite{williams1991probability} and likelihood, respectively. 
+To study the impact of the noise on the likelihood, the noise is modelled as a centered Gaussian on $\mathbb{R}^q$ with a covariance of $\Gamma_{noise}$. Thus, the likelihood can be expressed as
+\begin{equation}
+    \label{eqn:noise-likelihood}
+    \pi_{like}(\textbf{d}|m) \propto exp(-\Phi(m))
+\end{equation}
+where $\Gamma(m) = \frac{1}{2}||\mathcal{F}(m) - \textbf{\textit{d}}||^2_{\Gamma_{noise}^{-1}}$ denotes the negative log-likelihood.
+The prior is chosen to be Gaussian, giving the following relation:
+\begin{equation}
+    \label{eqn:prior}
+    d\mu_{prior}(m) \propto exp\{ -\frac{1}{2}|| m - m_{pr} ||^2_{C^{-1}_{prior}} \}
+\end{equation}
+where $m \sim \mathcal{N}(m_{pr}, C_{prior})$. The prior covariance $C_{prior}$ smooths out the parameter (similar to the action performed by the regularization term in \ref{sec:det_inversion}) to ensure that the rough components of the data are computed prior to the computation of the result of a well-posed Bayesian inversion. The construction of the prior is similar to the methodology followed for the same by \texttt{hIPPYlib} \cite{villa2018hippylib}.
+The equations of the likelihood (Eqn. \eqref{eqn:noise-likelihood}) and prior (Eqn.\eqref{eqn:prior}) are substituted in the posterior distribution equation (Eqn. \eqref{eqn:posterior}) to yield:
+\begin{equation}
+    \label{eqn:posterior2}
+    d\mu_{post} \propto exp \{ - \frac{1}{2}||\mathcal{F}(m) - \textbf{\textit{d}}||^2_{\Gamma^{-1}_{noise}} - \frac{1}{2}||m - m_{pr}||^2_{C^{-1}_{prior}} \}
+\end{equation}
+
+The next step in the flow involves the computation of the MAP point $m_{MAP}$---which is the parameter field that maximizes the posterior distribution. It is obtained by solving the following optimization problem:
+\begin{equation}
+    \label{eqn:map}
+    m_{MAP} := \underset{m \in \mathcal{M}}{argmin}\frac{1}{2}||\mathcal{F}(m) - \textbf{\textit{d}}||^2_{\Gamma_{noise}^{-1}} + \frac{1}{2}||m - m_{pr}||^2_{C_{prior}^{-1}}
+\end{equation}
+
+It is noteworthy that the prior performs the role of \textit{Tikhonov Regularization} \cite{golub1999tikhonov}. Similaritires can be drawn between Eqn. \eqref{eqn:map} and Eqn. \eqref{eqn:deterministic2}. In case the \textit{p2o} map is non-linear, the posterior does not follow a Gaussian distribution. However, certain assumptions can be made on the noise covariance $\Gamma_{noise}$, number \textit{q} of observations, and regularity of the \textit{p2o} map $\mathcal{F}$, the Laplace approximation can be utilized to estimate the expected value of the prior \cite{tierney1986accurate, evans2000approximating}. This is followed by the discretization of the Bayesian inverse problem, which has been explained in \cite{thanh2013infinitebayesian, villa2018hippylib}. The complete implementation of the Laplace approximation, along with the Bayesian discretization, in \texttt{hIPPYfire} is similar to that of \texttt{hIPPYlib} \cite{villa2018hippylib}.
