@@ -3,7 +3,7 @@
 
 In order to validate the different modules of \texttt{hIPPYfire}, one of \texttt{hIPPYlib}'s Bayesian inversion test cases, namely \texttt{3-SubsurfaceBayesian} \cite{Villa_hIPPYlib_An_Extensible_2020}, was recreated. This test case utilized all of \texttt{hIPPYfire}'s models that have been currently developed. Additional test cases shall be added for future functionality. The test case is briefly discussed below; a detailed description of the test case can be found in \texttt{hIPPYlib}'s repository \cite{Villa_hIPPYlib_An_Extensible_2020}.
 
-This test case attempts to quantify the uncertainty in a Bayesian inversion problem, as described in Section \ref{chapter: inverse-problems}. The forward problem of this test case is governed by an elliptic PDE. The objective is to compute the parameter fields with a certain probability that these gave rise to the observed data. Please note that the following test case admits discretized expressions of the parameter space, i.e., they are finite-dimensional.
+This test case solves the forward problem and computes the MAP point, as described in Section \ref{chapter: inverse-problems}. The forward problem of this test case is governed by an elliptic PDE. The objective is to compute the parameter fields with a certain probability that these gave rise to the observed data. Please note that the following test case admits discretized expressions of the parameter space, i.e., they are finite-dimensional.
 
 A Gaussian prior is assumed with a mean of $\textbf{m}_{prior}$. Its covariance, \textbf{$\Gamma_{prior}$}, is obtained by discretizing the inverse of the differential operator $\mathcal{A}^{-2} = (-\gamma\Delta + \delta\textbf{I})^{-2}$, where $\gamma, \delta > 0 $. The prior is chosen such that the well-posedness of this problem is ensured.
 
@@ -34,10 +34,6 @@ Problem flow has been defined until the computation of the MAP point in \texttt{
         Vh1 = fd.FunctionSpace(mesh, 'Lagrange', 1)
         Vh = [Vh2, Vh1, Vh2]
     \end{lstlisting}
-    \item \textbf{Generating the true parameter}: Generate a random vector field for the true parameter
-    \begin{lstlisting}[language=python]
-        mtrue = randomGen(Vh[STATE])
-    \end{lstlisting}
     \item \textbf{Forward Problem}: As mentioned in Section \ref{chapter: software}, the \texttt{PDEVariationalProblem} class sets up the forward problem component of the \textit{p2o} map. In addition to the finite element components defined above, it requires an expression of the weak form of the PDE (given by \texttt{pde\_varf}) and boundary conditions for the forward (\texttt{bc}) and incremental and adjoint problems (\texttt{bc0}).
     The \texttt{PDEVariationalProblem} class solves the forward/adjoint and incremental problems and computes the relevant partial derivatives with respect to the state, parameter, and adjoint variables.
     \begin{lstlisting}[language=python]
@@ -63,7 +59,7 @@ Problem flow has been defined until the computation of the MAP point in \texttt{
         m0 = fd.interpolate(fd.sin(x[0]), Vh[PARAMETER]).vector()
         objs = [fd.Function(Vh[PARAMETER], mtrue), fd.Function(Vh[PARAMETER], pr.mean)]
     \end{lstlisting}
-    The variables \texttt{gamma, delta} are input by the user. Plots of the vectors \texttt{mtrue} and \texttt{pr.mean} are generated and shown below. For the purpose of validation through this test case, \texttt{mtrue} is a known function and not randomly generated, as in \texttt{hIPPYlib} \cite{Villa_hIPPYlib_An_Extensible_2020}
+    The true parameter, \texttt{mtrue} is initialized to be a known analytic function to validate the accuracy of the parameters cmoputed by \texttt{hIPPYfire}. Plots of the vectors \texttt{mtrue} and \texttt{pr.mean} are generated and shown below. For the purpose of validation through this test case, \texttt{mtrue} is a known function and not randomly generated, as in \texttt{hIPPYlib} \cite{Villa_hIPPYlib_An_Extensible_2020}
         \begin{figure}[th]
         \centering
         \includegraphics[width=1.0\textwidth]{figures/parameter.png}
@@ -138,5 +134,5 @@ Final cost:  0.40262278305284716
         \caption{Contours of the state and parameter}
         \label{figure:space}
     \end{figure}
-    Mesh independence studies revealed that the number of iterations varied between 6--7 for mesh sizes of 64, 128, and 256.
+    A mesh independence study was conducted to establish that the convergence of the problem is observed for different sizes. The current sample assumes a uniform square mesh with 64 divisions. Experiments were conducted for mesh sizes of 128 and 256 divisions. Convergence was reported for 6--7 iterations for all mesh sizes. 
 \end{itemize}
