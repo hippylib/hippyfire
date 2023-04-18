@@ -25,7 +25,7 @@ from algorithms.linalg import matVecMult
 from algorithms.cgsolverSteihaug import CGSolverSteihaug
 from algorithms.NewtonCG import ReducedSpaceNewtonCG
 from modeling.reducedHessian import ReducedHessian
-
+from utils.vector2function import vector2Function
 
 # Set up mesh and finite element spaces
 ndim = 2
@@ -68,23 +68,29 @@ alpha = math.pi / 4
 pr = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, robin_bc=True)
 x = fd.SpatialCoordinate(mesh)
 mtrue = fd.interpolate(fd.sin(x[0])*fd.cos(x[1]), Vh[PARAMETER]).vector()
-print(type(mtrue))
 m0 = fd.interpolate(fd.sin(x[0]), Vh[PARAMETER]).vector()
 objs = [fd.Function(Vh[PARAMETER], mtrue.vector()), fd.Function(Vh[PARAMETER], pr.mean)]
-fig, ax = plt.subplots(1, 2, figsize=(16, 8))
+fig, ax = plt.subplots(1, 2, figsize=(20, 20))
 fd.tricontourf(objs[0], antialiased=True, label='True Parameter', axes=ax[0])
 # ax[0].legend()
-ax[0].set_title("True Parameter")
-plt.colorbar(ax[0].collections[0])
+ax[0].set_title("True Parameter", fontsize=20)
+cbar1 = plt.colorbar(ax[0].collections[0])
 fd.tricontourf(objs[1], label='PARAMETER', axes=ax[1])
 # ax[1].legend()
-ax[1].set_title("Prior Mean")
-plt.colorbar(ax[1].collections[0])
+ax[1].set_title("Prior Mean", fontsize=20)
+cbar2 = plt.colorbar(ax[1].collections[0])
+cbar1.ax.tick_params(labelsize=20)
+cbar2.ax.tick_params(labelsize=20)
+
+ax[0].set_aspect(1)
+ax[1].set_aspect(1)
+ax[0].tick_params(axis='both', labelsize=20)
+ax[1].tick_params(axis='both', labelsize=20)
 plt.show()
 
 # Set up misfit
-ntargets = 50
-rel_noise = 0.01
+
+
 
 #Targets only on the bottom
 # targets_x = np.random.uniform(0.1,0.9, [ntargets] )
@@ -111,6 +117,34 @@ print(vmax, vmin)
 # nb.plot(fd.Function(Vh[STATE], utrue), mytitle="True State", subplot_loc=121, vmin=vmin, vmax=vmax)
 # nb.plot_pts(targets, misfit.d, mytitle="Observations", subplot_loc=122, vmin=vmin, vmax=vmax)
 # plt.show()
+ntargets = misfit.d.size()
+targets_x = np.random.uniform(0.1,0.9, [ntargets])
+targets_y = np.random.uniform(0.1,0.5, [ntargets])
+targets = np.zeros([ntargets, ndim])
+targets[:, 0] = targets_x
+targets[:, 1] = targets_y
+
+fig, ax = plt.subplots(1, 2, figsize=(20, 12))
+fd.tricontourf(fd.Function(Vh[STATE], utrue).vector(), antialiased=True, label='True Parameter', axes=ax[0])
+
+ax[0].set_title("True State", fontsize=20)
+cbar1 = plt.colorbar(ax[0].collections[0])
+
+plt.scatter(targets[:, 0], targets[:, 1], c=misfit.d.get_local(), s=1)
+ax[1].set_title("Observations", fontsize=20)
+cbar2 = plt.colorbar(ax[1].collections[0])
+cbar1.ax.tick_params(labelsize=20)
+cbar2.ax.tick_params(labelsize=20)
+
+ax[0].set_aspect(1)
+ax[1].set_aspect(((ax[1].get_xlim()[1] - ax[1].get_xlim()[0])/(ax[1].get_ylim()[1] - ax[1].get_ylim()[0])) * 1)
+ax[0].tick_params(axis='both', labelsize=20)
+ax[1].tick_params(axis='both', labelsize=20)
+plt.show()
+
+
+
+
 model = Model(pde, pr, misfit)
 
 # print("Test only misfit")
@@ -120,60 +154,60 @@ model = Model(pde, pr, misfit)
 # print(err_H)
 
 # print("Test also prior")
-# eps, err_grad, err_H = modelVerify(model, m0, misfit_only=False)
+eps, err_grad, err_H = modelVerify(model, m0, misfit_only=False)
 
 # print(err_grad)
 # print(err_H)
 
 
 # verifying NewtonCG
-m = pr.mean.copy()
-z = [None, m, None]
-z[STATE] = model.generate_vector(STATE)
-z[ADJOINT] = model.generate_vector(ADJOINT)
-model.solveFwd(z[STATE], z)
-mhat = model.generate_vector(PARAMETER)
-mg = model.generate_vector(PARAMETER)
-z_star = [None, None, None] + z[3::]
-z_star[STATE] = model.generate_vector(STATE)
-z_star[PARAMETER] = model.generate_vector(PARAMETER)
-cost_old, _, _ = model.cost(z)
+# m = pr.mean.copy()
+# z = [None, m, None]
+# z[STATE] = model.generate_vector(STATE)
+# z[ADJOINT] = model.generate_vector(ADJOINT)
+# model.solveFwd(z[STATE], z)
+# mhat = model.generate_vector(PARAMETER)
+# mg = model.generate_vector(PARAMETER)
+# z_star = [None, None, None] + z[3::]
+# z_star[STATE] = model.generate_vector(STATE)
+# z_star[PARAMETER] = model.generate_vector(PARAMETER)
+# cost_old, _, _ = model.cost(z)
 
-it = 0
-max_iter = 20
-rel_tol = 1e-6
-abs_tol = 1e-12
-GN_iter = 5
-cg_coarse_tolerance = .5
-cg_max_iter = 100
-coverged = False
+# it = 0
+# max_iter = 20
+# rel_tol = 1e-6
+# abs_tol = 1e-12
+# GN_iter = 5
+# cg_coarse_tolerance = .5
+# cg_max_iter = 100
+# coverged = False
 
-model.solveAdj(z[ADJOINT], z)
-model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
-gradnorm = model.evalGradientParameter(z, mg)
+# model.solveAdj(z[ADJOINT], z)
+# model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
+# gradnorm = model.evalGradientParameter(z, mg)
 
-gradnorm_ini = gradnorm
-tol = max(abs_tol, gradnorm_ini * rel_tol)
-tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
-HessApply = ReducedHessian(model)
-solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
-solver.set_operator(HessApply)
-solver.set_preconditioner(model.Rsolver())
-solver.solve(mhat, (-1. * mg))
-mg_what = mg.inner(mhat)
+# gradnorm_ini = gradnorm
+# tol = max(abs_tol, gradnorm_ini * rel_tol)
+# tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
+# HessApply = ReducedHessian(model)
+# solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
+# solver.set_operator(HessApply)
+# solver.set_preconditioner(model.Rsolver())
+# solver.solve(mhat, (-1. * mg))
+# mg_what = mg.inner(mhat)
 
-alpha = 1.0
-descent = 0
-n_backtrack = 0
+# alpha = 1.0
+# descent = 0
+# n_backtrack = 0
 
-z_star[PARAMETER].assign(0.0)
-z_star[PARAMETER].axpy(1., z[PARAMETER])
-z_star[PARAMETER].axpy(alpha, mhat)
-z_star[STATE].assign(0.0)
-z_star[STATE].axpy(1., z[STATE])
-model.solveFwd(z_star[STATE], z_star)
+# z_star[PARAMETER].assign(0.0)
+# z_star[PARAMETER].axpy(1., z[PARAMETER])
+# z_star[PARAMETER].axpy(alpha, mhat)
+# z_star[STATE].assign(0.0)
+# z_star[STATE].axpy(1., z[STATE])
+# model.solveFwd(z_star[STATE], z_star)
 
-cost_new, reg_new, misfit_new = model.cost(z_star)
+# cost_new, reg_new, misfit_new = model.cost(z_star)
 
 m = pr.mean.copy()
 solver = ReducedSpaceNewtonCG(model)
@@ -204,13 +238,28 @@ print( "Final cost: ", solver.final_cost )
 # plt.figure(figsize=(15, 5))
 
 
-fig, ax = plt.subplots(1, 2, figsize=(16, 8))
+fig, ax = plt.subplots(1, 2, figsize=(20, 12))
 fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), antialiased=True, label='STATE', axes=ax[0])
 # ax[0].legend()
-ax[0].set_title("State space")
-plt.colorbar(ax[0].collections[0])
-fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), label='PARAMETER', axes=ax[1])
+# ax[0].set_title("State space")
+# plt.colorbar(ax[0].collections[0])
+# fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), label='PARAMETER', axes=ax[1])
+# # ax[1].legend()
+# ax[1].set_title("Parameter space")
+# plt.colorbar(ax[1].collections[0])
+# plt.show()
+
+ax[0].set_title("State", fontsize=20)
+cbar1 = plt.colorbar(ax[0].collections[0])
+fd.tricontourf(objs[1], label='PARAMETER', axes=ax[1])
 # ax[1].legend()
-ax[1].set_title("Parameter space")
-plt.colorbar(ax[1].collections[0])
+ax[1].set_title("Parameter", fontsize=20)
+cbar2 = plt.colorbar(ax[1].collections[0])
+cbar1.ax.tick_params(labelsize=20)
+cbar2.ax.tick_params(labelsize=20)
+
+ax[0].set_aspect(1)
+ax[1].set_aspect(1)
+ax[0].tick_params(axis='both', labelsize=20)
+ax[1].tick_params(axis='both', labelsize=20)
 plt.show()
