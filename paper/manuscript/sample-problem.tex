@@ -3,25 +3,76 @@
 
 In order to validate the different modules of \texttt{hIPPYfire}, one of \texttt{hIPPYlib}'s Bayesian inversion test cases, namely \texttt{3-SubsurfaceBayesian} \cite{Villa_hIPPYlib_An_Extensible_2020}, was recreated. This test case utilized all of \texttt{hIPPYfire}'s models that have been currently developed. Additional test cases shall be added for future functionality. The test case is briefly discussed below; a detailed description of the test case can be found in \texttt{hIPPYlib}'s repository \cite{Villa_hIPPYlib_An_Extensible_2020}.
 
-This test case solves the forward problem and computes the MAP point, as described in Section \ref{chapter: inverse-problems}. The forward problem of this test case is governed by an elliptic PDE. The objective is to compute the parameter fields with a certain probability that these gave rise to the observed data. Please note that the following test case admits discretized expressions of the parameter space, i.e., they are finite-dimensional.
+The objective of this test case is to compute the uncertainty in the solution of an inverse problem governed by an elliptic PDE via the Bayesian inference framework. However, this test case only solves the forward problem and computes the MAP point, as described in Section \ref{chapter: inverse-problems}. Please note that the following test case admits discretized expressions of the parameter space, i.e., they are finite-dimensional.
 
-A Gaussian prior is assumed with a mean of $\textbf{m}_{prior}$. Its covariance, \textbf{$\Gamma_{prior}$}, is obtained by discretizing the inverse of the differential operator $\mathcal{A}^{-2} = (-\gamma\Delta + \delta\textbf{I})^{-2}$, where $\gamma, \delta > 0 $. The prior is chosen such that the well-posedness of this problem is ensured.
-
-The likelihood is calculated as shown below:
+The objective of this sample problem is to compute the log coefficient field \textit{m} for an elliptic PDE with continuous state observations. In addition to the mesh set-up parameters (such as the dimension, mesh divisions, function space, etc), the user is required to provide the weak form of the PDE and the corresponding boundary conditions for forward and adjoint problems. The weak form of the PDE is given as follows:
 \begin{equation}
-    \textbf{d}_{obs} = \textbf{f(m)} + \textbf{e}
+    \label{eqn:pde}
+    \begin{split}
+    e^{m}\langle{\nabla{u}, \nabla{p}}\rangle = \langle{f, p}\rangle \textrm{ in } \Omega, \\
+    u(\textbf{x}, \textbf{y}) = \textbf{y} \textrm{ on } \Gamma_D = \Gamma_{bottom} \bigcup \Gamma_{top}
+    \end{split}
 \end{equation}
-$\textbf{e}$ represents the noise, which is computed by the \texttt{randomGen()} method in the \texttt{rand} module.
+where $\Omega = (0, 1) \times (0, 1)$ and $\Gamma_D$ is the union of the top and bottom boundaries of $\Omega$. $u$ is the state variable, $f \in \mathcal{L}^2(\Omega)$ is a source term (that is equated to zero in the current case), and $\langle{.,.}\rangle$ represents the standard inner product on $\mathcal{L}^2(\Omega)$. The spaces $V_{y}$ and $V_0$ are defined as follows:
+$$
+    V_y = \left\{ v \in H^1(\Omega) \textrm{ s.t. } v = \textbf{y} \textrm{ on } \Gamma_D \right\}
+$$
+$$
+    V_0 = \left\{ v \in H^1(\Omega) \textrm{ s.t. } v = 0 \textrm{ on } \Gamma_D \right\}
+$$
+where $H^1(\Omega)$ is the Sobolev space whose derivatives are in $\mathcal{L}^2(\Omega)$. In the weak form of the PDE (Eqn. \ref{eqn:pde}), we attempt to find $u \in V_y$ using the test function $p \in V_0$.
+
+The prior is a Gaussian distribution $\mathcal{N}(m_{pr}, C_{prior})$ s.t. $C_{prior} = \mathcal{A}^{-2}$, as shown in \cite{stuart2010inverse}. $\mathcal{A}$ is a differential operator with a domain $H^1({\Omega})$ and action as given below:
+
 \begin{equation}
-    \pi_{like}(\textbf{d}_{obs} | \textbf{m}) = exp(-\frac{1}{2}(\textbf{f(m)} -\textbf{d}_{obs})^T\Gamma^{-1}_{noise}(\textbf{f(m)} -\textbf{d}_{obs}))
+\label{eqn: prior_action}
+ \left\{
+    \begin{array}{lr}
+        -\gamma\nabla.(\Theta\nabla{m}) + \delta{m} &  \textrm{ in } \Omega\\
+        \Theta\nabla{m}.\textbf{n} + \beta{m} & \textrm{ in } \partial\Omega
+    \end{array}
+\right\}
 \end{equation}
 
-The above equation presents a discretized version of the likelihood function. The mean of the posterior distribution, also referred to as \textbf{${m_{MAP}} $}, is the parameter vector that maximizes the posterior. Its discretized computation is listed below:
+$\beta \propto \sqrt{\gamma\delta}$ is the optimal robin coefficient \cite{daon2016mitigating} to minimize boundary artifcats. $\Theta$ is an s.p.d anisotropic tensor of the form:
+
 \begin{equation}
-    \textbf{m}_{MAP} := \underset{m}{arg min}\mathcal{J}(\textbf{m}) := (\frac{1}{2} || \textbf{f(m)} - d_{obs} ||^2_{\Gamma_{noise}^{-1}} + \frac{1}{2}|| \textbf{m} - \textbf{m}_{prior} || ^2_{\Gamma_{noise}^{-1}}
+\label{eqn: Theta}
+ \left\{
+    \begin{array}{lr}
+        \theta_1sin(\alpha)^2 &  (\theta_1 - \theta_2)sin(\alpha)cos(\alpha)\\
+        (\theta_1 - \theta_2)sin(\alpha)cos(\alpha) & \theta_2cos(\alpha)^2
+    \end{array}
+\right\}
 \end{equation}
 
-Problem flow has been defined until the computation of the MAP point in \texttt{hIPPYfire}. A few code snippets have been included below
+The prior is chosen such that the well-posedness of this problem is ensured.
+
+The log-likelihood (data misfit) functional is specfiied next. The noisy continuous data observations, $\textbf{d}$, are approximated s.t. $\textbf{d} \in \mathbb{R}^q$. They represent the observations of the state \textit{u} at $q = 16641$ random locations uniformly distributed in $\Omega$ 
+
+\hl{@Umberto, kindly request you to verify the above statement. This is the reason why we have points in the RHS of the observations graph, even though it is a continuous state observation. \texttt{misfit.d} is initialized as \texttt{pde.generate\_state()} vector. If my explanation above is incorrect, could you please assist me in rectifying it? Thank you.}
+
+\begin{equation}
+    d = \mathcal{B}u + \eta
+\end{equation}
+where $\mathcal{B} : V_y \rightarrow \mathbb{R}^q$ is a linear observation operator. $\eta$ represents the noise vector and is a multivariate Gaussian variable with a distribution $\mathcal{N}(0, \Gamma_{noise})$ s.t. $\Gamma_{noise} = \sigma^2\textbf{I}$, where $\sigma = 0.01$ and $\textbf{I} = \mathbb{R}^{q \times q}$
+
+The likelihood is then computed as follows:
+
+\begin{equation}
+    \pi_{like}(\textbf{d} | \textbf{m}) = exp(-\frac{1}{2}(\mathcal{B}u(m) -\textbf{d})^T\Gamma^{-1}_{noise}(\mathcal{B}u(m) -\textbf{d}))
+\end{equation}
+
+where $m_{pr}$ is the prior mean of the log coefficient field $m$. The above equation presents a discretized version of the likelihood function. The mean of the posterior distribution, also referred to as \textbf{${m_{MAP}} $}, is the parameter vector that maximizes the posterior. It is computed by solving the following variational non-linear least squares optimization problem:
+\begin{equation}
+    \textbf{m}_{MAP} := \underset{m \in H^1(\Omega)}{arg min}\mathcal{J}(\textbf{m}) := (\frac{1}{2} || \mathcal{B}u(m) - \textbf{d} ||^2_{\Gamma_{noise}^{-1}} + \frac{1}{2}|| \textbf{m} - \textbf{m}_{prior} || ^2_{C_{prior}^{-1}}
+\end{equation}
+
+This optimization problem has been solved using the inexact Newton-CG algorithm, which has been described in Appendix A of Villa et al. \cite{Villa_hIPPYlib_An_Extensible_2020}.
+
+\hl{@Umberto, Since we do not go beyond the calculation of the MAP point, I have not included any more equations. Would you like me to include the Gradient and Hessian actions of the cost functional as well? Please let me know, and I shall include them appropriately. Although I might need your help in writing those since we only have the weak form of the PDE.}
+
+The problem flow demonstrated above is represented through a few code snippets below.
 
 \begin{itemize}
     \item \textbf{Mesh and FEM setup}: A two-dimensional unit square mesh is created with a P2 finite element space for \texttt{state} and \texttt{adjoint} variables and P1 for \texttt{parameter}.
@@ -97,6 +148,7 @@ Problem flow has been defined until the computation of the MAP point in \texttt{
         \caption{Gradient and Hessian Checks obtained from \texttt{modelVerify}}
         \label{figure:modelVerify}
     \end{figure}
+    \hl{@Umberto, I am currently working to fix the aspect ratio of the gradient check plots. Should be fixed by EOD. The colorbars in the rest of the figures are slightly longer than the graph; I am rectifying those ASAP as well.}
     \item \textbf{MAP Point}: The Newton-CG method is used to compute the MAP point.
     \begin{lstlisting}[language=python]
         m = pr.mean.copy()
