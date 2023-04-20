@@ -97,8 +97,7 @@ misfit.d.axpy(1., utrue)
 rel_noise = 0.01
 MAX = np.linalg.norm(misfit.d.get_local(), ord=np.inf)
 noise_std_dev = rel_noise * MAX
-temp = misfit.d.copy()
-temp.assign(1.0)                # created a temp vector to add noise_std_dev to all elements of misfit.d
+temp = randomGen(Vh[STATE]).vector()
 misfit.d.axpy(float(noise_std_dev), temp)
 misfit.noise_variance = noise_std_dev * noise_std_dev
 
@@ -120,7 +119,7 @@ fd.tricontourf(fd.Function(Vh[STATE], utrue).vector(), antialiased=True, label='
 ax[0].set_title("True State", fontsize=20)
 cbar1 = plt.colorbar(ax[0].collections[0])
 
-plt.scatter(targets[:, 0], targets[:, 1], c=misfit.d.get_local(), s=1)
+plt.scatter(targets[:, 0], targets[:, 1], c= misfit.d.get_local(), s=1)
 ax[1].set_title("Observations", fontsize=20)
 cbar2 = plt.colorbar(ax[1].collections[0])
 cbar1.ax.tick_params(labelsize=20)
