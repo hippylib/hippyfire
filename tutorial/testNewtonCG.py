@@ -89,34 +89,24 @@ ax[1].tick_params(axis='both', labelsize=20)
 plt.show()
 
 # Set up misfit
-
-
-
-#Targets only on the bottom
-# targets_x = np.random.uniform(0.1,0.9, [ntargets] )
-# targets_y = np.random.uniform(0.1,0.5, [ntargets] )
-# targets = np.zeros([ntargets, ndim])
-# targets[:,0] = targets_x
-# targets[:,1] = targets_y
-# print( "Number of observation points: {0}".format(ntargets) )
-
 misfit = ContinuousStateObservation(Vh[STATE], ufl.dx, bcs=bc0)
-misfit.noise_variance = 1e-4
 utrue = pde.generate_state()
 x = [utrue, mtrue.vector(), None]
 pde.solveFwd(x[STATE], x)
-
-# print(misfit.W.M.handle.size)
 misfit.d.axpy(1., utrue)
-misfit.d.axpy(float(np.sqrt(misfit.noise_variance)), randomGen(Vh[STATE]).vector())
-# print(misfit.d.get_local())
+rel_noise = 0.01
+MAX = np.linalg.norm(misfit.d.get_local(), ord=np.inf)
+noise_std_dev = rel_noise * MAX
+temp = misfit.d.copy()
+temp.assign(1.0)                # created a temp vector to add noise_std_dev to all elements of misfit.d
+misfit.d.axpy(float(noise_std_dev), temp)
+misfit.noise_variance = noise_std_dev * noise_std_dev
+
+# misfit.d.axpy(float(np.sqrt(misfit.noise_variance)), randomGen(Vh[STATE]).vector())
+# print(misfit.dgithub..get_local())
 vmax = max( utrue.get_local().max(), misfit.d.get_local().max() )
 vmin = min( utrue.get_local().min(), misfit.d.get_local().min() )
 print(vmax, vmin)
-# plt.figure(figsize=(15,5))
-# nb.plot(fd.Function(Vh[STATE], utrue), mytitle="True State", subplot_loc=121, vmin=vmin, vmax=vmax)
-# nb.plot_pts(targets, misfit.d, mytitle="Observations", subplot_loc=122, vmin=vmin, vmax=vmax)
-# plt.show()
 ntargets = misfit.d.size()
 targets_x = np.random.uniform(0.1,0.9, [ntargets])
 targets_y = np.random.uniform(0.1,0.5, [ntargets])
@@ -160,54 +150,7 @@ eps, err_grad, err_H = modelVerify(model, m0, misfit_only=False)
 # print(err_H)
 
 
-# verifying NewtonCG
-# m = pr.mean.copy()
-# z = [None, m, None]
-# z[STATE] = model.generate_vector(STATE)
-# z[ADJOINT] = model.generate_vector(ADJOINT)
-# model.solveFwd(z[STATE], z)
-# mhat = model.generate_vector(PARAMETER)
-# mg = model.generate_vector(PARAMETER)
-# z_star = [None, None, None] + z[3::]
-# z_star[STATE] = model.generate_vector(STATE)
-# z_star[PARAMETER] = model.generate_vector(PARAMETER)
-# cost_old, _, _ = model.cost(z)
 
-# it = 0
-# max_iter = 20
-# rel_tol = 1e-6
-# abs_tol = 1e-12
-# GN_iter = 5
-# cg_coarse_tolerance = .5
-# cg_max_iter = 100
-# coverged = False
-
-# model.solveAdj(z[ADJOINT], z)
-# model.setPointForHessianEvaluations(z, gauss_newton_approx=True)
-# gradnorm = model.evalGradientParameter(z, mg)
-
-# gradnorm_ini = gradnorm
-# tol = max(abs_tol, gradnorm_ini * rel_tol)
-# tolcg = min(cg_coarse_tolerance, math.sqrt(gradnorm/gradnorm_ini))
-# HessApply = ReducedHessian(model)
-# solver = CGSolverSteihaug(model.prior.R.getFunctionSpace())
-# solver.set_operator(HessApply)
-# solver.set_preconditioner(model.Rsolver())
-# solver.solve(mhat, (-1. * mg))
-# mg_what = mg.inner(mhat)
-
-# alpha = 1.0
-# descent = 0
-# n_backtrack = 0
-
-# z_star[PARAMETER].assign(0.0)
-# z_star[PARAMETER].axpy(1., z[PARAMETER])
-# z_star[PARAMETER].axpy(alpha, mhat)
-# z_star[STATE].assign(0.0)
-# z_star[STATE].axpy(1., z[STATE])
-# model.solveFwd(z_star[STATE], z_star)
-
-# cost_new, reg_new, misfit_new = model.cost(z_star)
 
 m = pr.mean.copy()
 solver = ReducedSpaceNewtonCG(model)
@@ -233,26 +176,13 @@ print( "Termination reason: ", solver.termination_reasons[solver.reason] )
 print( "Final gradient norm: ", solver.final_grad_norm )
 print( "Final cost: ", solver.final_cost )
 
-# printing graphs of State and Parameter
-
-# plt.figure(figsize=(15, 5))
-
 
 fig, ax = plt.subplots(1, 2, figsize=(20, 12))
 fd.tricontourf(fd.Function(Vh[STATE], x[STATE]), antialiased=True, label='STATE', axes=ax[0])
-# ax[0].legend()
-# ax[0].set_title("State space")
-# plt.colorbar(ax[0].collections[0])
-# fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), label='PARAMETER', axes=ax[1])
-# # ax[1].legend()
-# ax[1].set_title("Parameter space")
-# plt.colorbar(ax[1].collections[0])
-# plt.show()
 
 ax[0].set_title("State", fontsize=20)
 cbar1 = plt.colorbar(ax[0].collections[0])
-fd.tricontourf(objs[1], label='PARAMETER', axes=ax[1])
-# ax[1].legend()
+fd.tricontourf(fd.Function(Vh[PARAMETER], x[PARAMETER]), label='PARAMETER', axes=ax[1])
 ax[1].set_title("Parameter", fontsize=20)
 cbar2 = plt.colorbar(ax[1].collections[0])
 cbar1.ax.tick_params(labelsize=20)
