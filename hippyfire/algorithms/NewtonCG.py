@@ -245,16 +245,15 @@ class ReducedSpaceNewtonCG:
                     alpha *= 0.5
 
             if (print_level >= 0) and (self.it == 1):
-                print( "\n{0:3} {1:3} {2:15} {3:15} {4:15} {5:15} {6:14} {7:14} {8:14}".format(
-                      "It", "cg_it", "cost", "misfit", "reg", "(g,dm)", "||g||L2", "alpha", "tolcg"))
+                print( "\n{0:3} {1:3} {2:3}  {3:15} {4:15} {5:15} {6:15} {7:14} {8:14} {9:14}".format(
+                      "It", "cg_it", "tot_cg_it", "cost", "misfit", "reg", "(g,dm)", "||g||L2", "alpha", "tolcg"))
 
             if print_level >= 0:
-                print( "{0:3d} {1:3d} {2:15e} {3:15e} {4:15e} {5:15e} {6:14e} {7:14e} {8:14e}".format(
-                        self.it, HessApply.ncalls, cost_new, misfit_new, reg_new, mg_mhat, gradnorm, alpha, tolcg))
+                print( "{0:3d} {1:3d} {2:3d}  {3:15e} {4:15e} {5:15e} {6:15e} {7:14e} {8:14e} {9:14e}".format(
+                        self.it, HessApply.ncalls, self.total_cg_iter, cost_new, misfit_new, reg_new, mg_mhat, gradnorm, alpha, tolcg))
 
             if self.callback:
                 self.callback(self.it, x)
-
 
             if n_backtrack == max_backtracking_iter:
                 self.converged = False
