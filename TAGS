@@ -1,0 +1,1535 @@
+
+setup.cfg,0
+
+MANIFEST.in,0
+
+CITATION.cff,0
+
+INSTALL.md,1001
+## Install hIPPYlib using pipInstall hIPPYlib using pip28,1156
+### Latest releaseLatest release30,1187
+### Development version/topic branchesDevelopment version/topic branches44,1531
+## Build the hIPPYlib documentation using SphinxBuild the hIPPYlib documentation using Sphinx61,2023
+## FEniCS installationFEniCS installation68,2272
+### Install FEniCS from Conda (Linux or MacOS)Install FEniCS from Conda (Linux or MacOS)70,2296
+### Run FEniCS from Docker (Linux, MacOS, Windows)Run FEniCS from Docker (Linux, MacOS, Windows)82,2841
+#### Docker for Mac, Docker for Windows and Linux users (Setup and first use instructions)Docker for Mac, Docker for Windows and Linux users (Setup and first use instructions)94,3475
+#### Docker Toolbox users on Mac/Windows (Setup and first use instructions)Docker Toolbox users on Mac/Windows (Setup and first use instructions)110,4175
+#### Subsequent usesSubsequent uses134,5354
+### Other ways to build FEniCSOther ways to build FEniCS149,5697
+
+CONTRIBUTING.md,705
+# How to ContributeHow to Contribute22,1389
+## Quick SummaryQuick Summary55,2869
+## GitHub WorkflowGitHub Workflow67,3461
+### hIPPYlib OrganizationhIPPYlib Organization79,3915
+### New Feature DevelopmentNew Feature Development107,5122
+### Developer GuidelinesDeveloper Guidelines143,6415
+### Pull RequestsPull Requests174,7957
+### Pull Request ChecklistPull Request Checklist204,8888
+## Automated TestingAutomated Testing223,9972
+## Contact InformationContact Information235,10387
+## Slack channelSlack channel240,10613
+## [Developer's Certificate of Origin 1.1](https://developercertificate.org/)[Developer's Certificate of Origin 1.1](https://developercertificate.org/)244,10963
+
+CHANGELOG.md,1511
+Version 3.1.0, released on Dec 21, 2022Version 3.1.0, released on Dec 21, 202218,877
+Version 3.0.0, released on Feb 2, 2020Version 3.0.0, released on Feb 2, 202027,1351
+Version 2.3.0, released on Sept 6, 2019Version 2.3.0, released on Sept 6, 201943,2305
+Version 2.2.1, released on March 28, 2019Version 2.2.1, released on March 28, 201950,2893
+Version 2.2.0, released on Dec 12, 2018Version 2.2.0, released on Dec 12, 201855,3120
+Version 2.1.1, released on Oct 23, 2018Version 2.1.1, released on Oct 23, 201866,3792
+Version 2.1.0, released on July 18, 2018Version 2.1.0, released on July 18, 201872,4038
+Version 2.0.0, released on June 15, 2018Version 2.0.0, released on June 15, 201879,4408
+Version 1.6.0, released on May 16, 2018Version 1.6.0, released on May 16, 201895,5493
+Version 1.5.0, released on Jan 24, 2018Version 1.5.0, released on Jan 24, 2018103,5919
+Version 1.4.0, released on Nov 8, 2017Version 1.4.0, released on Nov 8, 2017107,6035
+Version 1.3.0, released on June 28, 2017Version 1.3.0, released on June 28, 2017116,6432
+Version 1.2.0, released on April 24, 2017Version 1.2.0, released on April 24, 2017122,6617
+Version 1.1.0, released on Nov 28, 2016Version 1.1.0, released on Nov 28, 2016129,6909
+Version 1.0.2, released on Sep 30, 2016Version 1.0.2, released on Sep 30, 2016135,7115
+Version 1.0.1, released on Aug 25, 2016Version 1.0.1, released on Aug 25, 2016142,7436
+Version 1.0.0, released on Aug 8, 2016Version 1.0.0, released on Aug 8, 2016148,7640
+
+LICENSE,0
+
+setup.py,443
+    from dolfin import __version__ as dolfin_versiondolfin_version23,719
+    fenics_version_major = int(dolfin_version[0:4])fenics_version_major28,869
+here = path.abspath(path.dirname(__file__))here37,1228
+    long_description = f.read()long_description39,1336
+version = {}version41,1369
+VERSION = version['__version__']VERSION45,1467
+REQUIREMENTS = [REQUIREMENTS47,1501
+EXTRAS = {EXTRAS54,1578
+KEYWORDS = """KEYWORDS58,1622
+
+doc/hippylib.rst,106
+hippylib packagehippylib package1,0
+SubpackagesSubpackages4,35
+Module contentsModule contents16,206
+
+doc/hippylib.modeling.rst,1011
+hippylib.modeling packagehippylib.modeling package1,0
+SubmodulesSubmodules4,53
+hippylib.modeling.PDEProblem modulehippylib.modeling.PDEProblem module7,76
+hippylib.modeling.expression modulehippylib.modeling.expression module16,261
+hippylib.modeling.misfit modulehippylib.modeling.misfit module24,441
+hippylib.modeling.model modulehippylib.modeling.model module32,605
+hippylib.modeling.modelVerify modulehippylib.modeling.modelVerify module40,766
+hippylib.modeling.pointwiseObservation modulehippylib.modeling.pointwiseObservation module48,949
+hippylib.modeling.posterior modulehippylib.modeling.posterior module56,1155
+hippylib.modeling.prior modulehippylib.modeling.prior module64,1328
+hippylib.modeling.reducedHessian modulehippylib.modeling.reducedHessian module72,1493
+hippylib.modeling.timeDependentVector modulehippylib.modeling.timeDependentVector module80,1685
+hippylib.modeling.variables modulehippylib.modeling.variables module88,1892
+Module contentsModule contents96,2069
+
+doc/conf.py,1497
+autodoc_mock_imports = ["dolfin", "ufl", "matplotlib", "ffc", "petsc4py", "mpi4py", "scipy", "nuautodoc_mock_imports19,733
+autodoc_default_flags = ['members', 'private-members', 'undoc-members']autodoc_default_flags20,835
+autoclass_content = 'both'autoclass_content21,907
+project = u'hIPPYlib'project25,1015
+copyright = u'2018, Umberto Villa, Noemi Petra, Omar Ghattas'copyright26,1037
+author = u'Umberto Villa, Noemi Petra, Omar Ghattas'author27,1099
+version = {}version29,1153
+root_directory = (os.path.abspath(os.path.dirname(os.path.dirname(__file__))))root_directory30,1166
+VERSION = version['__version__']VERSION34,1343
+version = u''version37,1401
+release = VERSIONrelease39,1464
+extensions = [extensions51,1809
+templates_path = ['_templates']templates_path60,2012
+source_suffix = '.rst'source_suffix66,2174
+master_doc = 'index'master_doc69,2229
+language = Nonelanguage76,2505
+exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store']exclude_patterns81,2715
+pygments_style = 'sphinx'pygments_style84,2836
+html_theme = 'sphinx_rtd_theme'html_theme92,3050
+html_show_sourcelink = Falsehtml_show_sourcelink93,3082
+html_static_path = ['_static']html_static_path104,3534
+htmlhelp_basename = 'hIPPYlibdoc'htmlhelp_basename120,4050
+latex_elements = {latex_elements125,4166
+latex_documents = [latex_documents146,4672
+man_pages = [man_pages156,5008
+texinfo_documents = [texinfo_documents167,5336
+todo_include_todos = Truetodo_include_todos179,5738
+
+doc/hippylib.algorithms.rst,1087
+hippylib.algorithms packagehippylib.algorithms package1,0
+SubmodulesSubmodules4,57
+hippylib.algorithms.NewtonCG modulehippylib.algorithms.NewtonCG module7,80
+hippylib.algorithms.bfgs modulehippylib.algorithms.bfgs module15,263
+hippylib.algorithms.cgsampler modulehippylib.algorithms.cgsampler module23,430
+hippylib.algorithms.cgsolverSteihaug modulehippylib.algorithms.cgsolverSteihaug module31,609
+hippylib.algorithms.linalg modulehippylib.algorithms.linalg module40,814
+hippylib.algorithms.lowRankOperator modulehippylib.algorithms.lowRankOperator module48,984
+hippylib.algorithms.multivector modulehippylib.algorithms.multivector module57,1182
+hippylib.algorithms.randomizedEigensolver modulehippylib.algorithms.randomizedEigensolver module66,1372
+hippylib.algorithms.randomizedSVD modulehippylib.algorithms.randomizedSVD module74,1591
+hippylib.algorithms.steepestDescent modulehippylib.algorithms.steepestDescent module83,1791
+hippylib.algorithms.traceEstimator modulehippylib.algorithms.traceEstimator module91,1988
+Module contentsModule contents99,2182
+
+doc/installation.rst,30
+InstallationInstallation1,0
+
+doc/index.rst,90
+hIPPYlib - Inverse Problem PYthon libraryhIPPYlib - Inverse Problem PYthon library6,219
+
+doc/Makefile,233
+SPHINXOPTS    =SPHINXOPTS5,100
+SPHINXBUILD   = sphinx-buildSPHINXBUILD6,116
+SPHINXPROJ    = hIPPYlibSPHINXPROJ7,145
+SOURCEDIR     = .SOURCEDIR8,170
+BUILDDIR      = _buildBUILDDIR9,188
+help:help12,280
+%: Makefile%19,523
+
+doc/changelog.rst,24
+ChangelogChangelog1,0
+
+doc/hippylib.mcmc.rst,376
+hippylib.mcmc packagehippylib.mcmc package1,0
+SubmodulesSubmodules4,45
+hippylib.mcmc.chain modulehippylib.mcmc.chain module7,68
+hippylib.mcmc.diagnostics modulehippylib.mcmc.diagnostics module15,217
+hippylib.mcmc.kernels modulehippylib.mcmc.kernels module23,384
+hippylib.mcmc.tracers modulehippylib.mcmc.tracers module31,539
+Module contentsModule contents40,695
+
+doc/hippylib.forward_uq.rst,300
+hippylib.forward\_uq packagehippylib.forward\_uq package1,0
+SubmodulesSubmodules4,59
+hippylib.forward\_uq.qoi modulehippylib.forward\_uq.qoi module7,82
+hippylib.forward\_uq.varianceReductionMC modulehippylib.forward\_uq.varianceReductionMC module31,660
+Module contentsModule contents40,872
+
+doc/hippylib.utils.rst,487
+hippylib.utils packagehippylib.utils package1,0
+SubmodulesSubmodules4,47
+hippylib.utils.checkDolfinVersion modulehippylib.utils.checkDolfinVersion module7,70
+hippylib.utils.parameterList modulehippylib.utils.parameterList module16,262
+hippylib.utils.vector2function modulehippylib.utils.vector2function module25,439
+hippylib.utils.random modulehippylib.utils.random module33,625
+hippylib.utils.nb modulehippylib.utils.nb module41,784
+Module contentsModule contents49,927
+
+doc/modules.rst,22
+hippylibhippylib1,0
+
+doc/hippylib.scheduling.rst,207
+hippylib.scheduling packagehippylib.scheduling package1,0
+SubmodulesSubmodules4,57
+hippylib.scheduling.collective modulehippylib.scheduling.collective module7,80
+Module contentsModule contents16,263
+
+doc/contributing.rst,0
+
+doc/requirements.txt,0
+
+hippylib/version.py,119
+version_info = (3, 1, 0)version_info16,627
+__version__ = '.'.join([str(x) for x in version_info])__version__17,652
+
+hippylib/modeling/model.py,1188
+import dolfin as dldl16,627
+class Model:Model20,709
+    def __init__(self, problem, prior,misfit):__init__33,1104
+    def generate_vector(self, component = "ALL"):generate_vector50,1675
+    def init_parameter(self, m):init_parameter78,2799
+    def cost(self, x):cost84,2984
+    def solveFwd(self, out, x):solveFwd98,3585
+    def solveAdj(self, out, x):solveAdj116,4205
+    def evalGradientParameter(self,x, mg, misfit_only=False):evalGradientParameter136,4916
+    def setPointForHessianEvaluations(self, x, gauss_newton_approx=False):setPointForHessianEvaluations161,5880
+    def solveFwdIncremental(self, sol, rhs):solveFwdIncremental183,6964
+    def solveAdjIncremental(self, sol, rhs):solveAdjIncremental195,7402
+    def applyC(self, dm, out):applyC207,7823
+    def applyCt(self, dp, out):applyCt221,8327
+    def applyWuu(self, du, out):applyWuu236,8836
+    def applyWum(self, dm, out):applyWum254,9510
+    def applyWmu(self, du, out):applyWmu275,10238
+    def applyR(self, dm, out):applyR295,10959
+    def Rsolver(self):Rsolver309,11415
+    def applyWmm(self, dm, out):applyWmm320,11750
+    def apply_ij(self, i, j, d, out):apply_ij340,12505
+
+hippylib/modeling/cpp_AssemblePointwiseObservation/AssemblePointwiseObservation.h,155
+namespace hippylibhippylib21,752
+class PointwiseObservationPointwiseObservation24,774
+	Mat mat;mat39,1285
+	std::vector<int> old_new;old_new40,1295
+
+hippylib/modeling/cpp_AssemblePointwiseObservation/AssemblePointwiseObservation.cpp,490
+namespace hippylibhippylib31,943
+PetscInt PointwiseObservation::computeLGtargets(MPI_Comm comm,computeLGtargets34,965
+PointwiseObservation::PointwiseObservation(const dolfin::FunctionSpace & Vh,PointwiseObservation111,2930
+PointwiseObservation::~PointwiseObservation()~PointwiseObservation208,6741
+std::shared_ptr<dolfin::Matrix> PointwiseObservation::GetMatrix()GetMatrix213,6811
+PYBIND11_MODULE(SIGNATURE, m) {PYBIND11_MODULE220,6976
+		          {__anona355e1690102223,7187
+
+hippylib/modeling/prior.py,2570
+import dolfin as dldl16,627
+import numpy as npnp18,658
+import scipy.linalg as scilascila19,677
+class _RinvM:_RinvM35,1224
+    def __init__(self, Rsolver, M):__init__40,1360
+    def init_vector(self,x,dim):init_vector44,1455
+    def mult(self,x,y):mult47,1535
+class _Prior:_Prior50,1600
+    def trace(self, method="Exact", tol=1e-1, min_iter=20, max_iter=100, r = 200):trace73,2586
+    def pointwise_variance(self, method, k = 1000000, r = 200):pointwise_variance109,4549
+    def cost(self,m):cost135,5671
+    def grad(self,m, out):grad143,5879
+    def init_vector(self,x,dim):init_vector148,5986
+    def sample(self, noise, s, add_mean=True):sample151,6105
+    def getHessianPreconditioner(self):getHessianPreconditioner154,6233
+class LaplacianPrior(_Prior):LaplacianPrior158,6362
+    def __init__(self, Vh, gamma, delta, mean=None, rel_tol=1e-12, max_iter=100):__init__169,6808
+    def init_vector(self,x,dim):init_vector253,10325
+    def sample(self, noise, s, add_mean=True):sample265,10738
+class _BilaplacianR:_BilaplacianR279,11129
+    def __init__(self, A, Msolver):__init__284,11275
+    def init_vector(self,x, dim):init_vector292,11547
+    def mpi_comm(self):mpi_comm295,11622
+    def mult(self,x,y):mult298,11688
+class _BilaplacianRsolver():_BilaplacianRsolver303,11842
+    def __init__(self, Asolver, M):__init__308,12008
+    def init_vector(self,x, dim):init_vector316,12284
+    def solve(self,x,b):solve319,12359
+def BiLaplacianComputeCoefficients(sigma2, rho, ndim):BiLaplacianComputeCoefficients326,12546
+class SqrtPrecisionPDE_Prior(_Prior):SqrtPrecisionPDE_Prior343,13083
+    def __init__(self, Vh, sqrt_precision_varf_handler, mean=None, rel_tol=1e-12, max_iter=1000)__init__351,13340
+    def init_vector(self,x,dim):init_vector427,16788
+    def sample(self, noise, s, add_mean=True):sample439,17197
+def BiLaplacianPrior(Vh, gamma, delta, Theta = None, mean=None, rel_tol=1e-12, max_iter=1000, roBiLaplacianPrior451,17591
+    def sqrt_precision_varf_handler(trial, test): sqrt_precision_varf_handler478,18985
+def MollifiedBiLaplacianPrior(Vh, gamma, delta, locations, m_true, Theta = None, pen = 1e1, ordeMollifiedBiLaplacianPrior497,19667
+    def sqrt_precision_varf_handler(trial, test): sqrt_precision_varf_handler535,21749
+class GaussianRealPrior(_Prior):GaussianRealPrior557,22591
+    def __init__(self, Vh, covariance, mean=None):__init__566,22963
+    def init_vector(self, x, dim):init_vector653,26490
+    def sample(self, noise, s, add_mean=True):sample667,26912
+
+hippylib/modeling/timeDependentVector.py,576
+import dolfin as dldl16,627
+class TimeDependentVector(object):TimeDependentVector18,648
+    def __init__(self, times, tol=1e-10, mpi_comm = dl.MPI.comm_world):__init__26,908
+    def __imul__(self, other):__imul__43,1419
+    def copy(self):copy49,1527
+    def initialize(self,M,dim):initialize61,1840
+    def axpy(self, a, other):axpy71,2109
+    def zero(self):zero78,2327
+    def store(self, u, t):store85,2465
+    def retrieve(self, u, t):retrieve99,2910
+    def norm(self, time_norm, space_norm):norm113,3350
+    def inner(self, other):inner126,3707
+
+hippylib/modeling/modelVerify.py,291
+import numpy as npnp16,627
+def modelVerify(model,m0, is_quadratic = False, misfit_only=False, verbose = True, eps = None):modelVerify22,781
+def modelVerifyPlotErrors(is_quadratic, eps, err_grad, err_H):modelVerifyPlotErrors104,3256
+        import matplotlib.pyplot as pltplt106,3328
+
+hippylib/modeling/PDEProblem.py,1603
+import dolfin as dldl16,627
+class PDEProblem(object):PDEProblem23,853
+    def generate_state(self):generate_state32,1164
+    def generate_parameter(self):generate_parameter36,1342
+    def init_parameter(self, m):init_parameter40,1532
+    def solveFwd(self, state, x):solveFwd44,1696
+    def solveAdj(self, adj, x, adj_rhs):solveAdj52,2017
+    def evalGradientParameter(self, x, out):evalGradientParameter60,2365
+    def setLinearizationPoint(self,x, gauss_newton_approx):setLinearizationPoint64,2616
+    def solveIncremental(self, out, rhs, is_adj):solveIncremental72,2992
+    def apply_ij(self,i,j, dir, out):   apply_ij91,3733
+    def apply_ijk(self,i,j,k, x, jdir, kdir, out):apply_ijk99,4090
+class PDEVariationalProblem(PDEProblem):PDEVariationalProblem107,4477
+    def __init__(self, Vh, varf_handler, bc, bc0, is_fwd_linear = False):__init__108,4518
+    def generate_state(self):generate_state136,5350
+    def generate_parameter(self):generate_parameter140,5496
+    def init_parameter(self, m):init_parameter144,5654
+    def solveFwd(self, state, x):solveFwd149,5832
+    def solveAdj(self, adj, x, adj_rhs):solveAdj176,7016
+    def evalGradientParameter(self, x, out):evalGradientParameter197,7937
+    def setLinearizationPoint(self,x, gauss_newton_approx):setLinearizationPoint207,8454
+    def solveIncremental(self, out, rhs, is_adj):solveIncremental247,10232
+    def apply_ij(self,i,j, dir, out):   apply_ij269,11110
+    def apply_ijk(self,i,j,k, x, jdir, kdir, out):apply_ijk293,11893
+    def _createLUSolver(self):   _createLUSolver312,12590
+
+hippylib/modeling/expression.py,137
+import dolfin as dldl16,627
+cpp_code = '''cpp_code32,1196
+ExpressionModule = dl.compile_cpp_code(cpp_code)ExpressionModule154,3969
+
+hippylib/modeling/__init__.py,0
+
+hippylib/modeling/reducedHessian.py,587
+class ReducedHessian:ReducedHessian19,678
+    def __init__(self, model, misfit_only=False):__init__29,1193
+    def init_vector(self, x, dim):init_vector45,1804
+    def mult(self,x,y):mult59,2536
+    def inner(self,x,y):inner70,2867
+    def GNHessian(self,x,y):GNHessian80,3198
+    def TrueHessian(self, x, y):TrueHessian96,3788
+class FDHessian:FDHessian118,4617
+    def __init__(self, model, m0, h, misfit_only=False):__init__130,5285
+    def init_vector(self, x, dim):init_vector148,5970
+    def mult(self,x,y):mult162,6700
+    def inner(self,x,y):inner193,7898
+
+hippylib/modeling/variables.py,101
+STATE= 0STATE21,736
+PARAMETER = 1PARAMETER22,745
+ADJOINT = 2ADJOINT23,759
+NVAR = 3NVAR24,771
+
+hippylib/modeling/pointwiseObservation.py,719
+import dolfin as dldl16,627
+import numpy as npnp18,658
+abspath = os.path.dirname( os.path.abspath(__file__) )abspath21,692
+source_directory = os.path.join(abspath,"cpp_AssemblePointwiseObservation")source_directory22,747
+    cpp_code    = cpp_file.read()cpp_code24,918
+include_dirs = [".", source_directory]include_dirs27,954
+cpp_module = dl.compile_cpp_code(cpp_code, include_dirs=include_dirs)cpp_module28,993
+def assemblePointwiseObservation(Vh, targets, prune_and_sort=False):assemblePointwiseObservation30,1064
+def exportPointwiseObservation(Vh, B, data, fname, varname="observation"):exportPointwiseObservation46,1663
+def write_vtk(points, data, fname, varname="observation"):write_vtk85,3239
+
+hippylib/modeling/posterior.py,1219
+import numpy as npnp18,720
+class LowRankHessian:LowRankHessian20,740
+    def __init__(self, prior, d, U):__init__25,887
+    def init_vector(self,x, dim):init_vector35,1287
+    def inner(self,x,y):inner38,1364
+    def mult(self, x, y):mult44,1524
+    def solve(self, sol, rhs):solve51,1718
+class LowRankPosteriorSampler:LowRankPosteriorSampler57,1888
+    def __init__(self, prior, d, U):__init__68,2142
+    def init_vector(self,x, dim):init_vector76,2460
+    def sample(self, noise, s):sample79,2541
+class GaussianLRPosterior:GaussianLRPosterior85,2701
+    def __init__(self, prior, d, U, mean=None):__init__100,3425
+    def cost(self, m):cost118,4083
+    def init_vector(self,x, dim):init_vector126,4289
+    def sample(self, *args, **kwargs):sample134,4613
+    def _sample_given_white_noise(self, noise, s_prior, s_post):_sample_given_white_noise176,6383
+    def _sample_given_prior(self,s_prior, s_post):_sample_given_prior180,6560
+    def trace(self, **kwargs):trace183,6661
+    def trace_update(self):trace_update195,7086
+    def pointwise_variance(self, **kwargs):pointwise_variance198,7175
+    def klDistanceFromPrior(self, sub_comp = False):klDistanceFromPrior212,7931
+
+hippylib/modeling/misfit.py,1842
+import dolfin as dldl16,627
+import numpy as npnp21,803
+class Misfit(object):Misfit23,823
+    def cost(self,x):cost32,1280
+    def grad(self, i, x, out):grad39,1538
+    def setLinearizationPoint(self,x, gauss_newton_approx=False):setLinearizationPoint46,1910
+    def apply_ij(self,i,j, dir, out):apply_ij58,2318
+class PointwiseStateObservation(Misfit):PointwiseStateObservation64,2596
+    def __init__(self, Vh, obs_points):__init__69,2789
+    def cost(self,x):cost85,3384
+    def grad(self, i, x, out):grad94,3809
+    def setLinearizationPoint(self,x, gauss_newton_approx=False):setLinearizationPoint109,4407
+    def apply_ij(self,i,j,dir,out):apply_ij113,4572
+class MultPointwiseStateObservation(Misfit):MultPointwiseStateObservation126,5096
+    def __init__(self, Vh, obs_points, Mpar):__init__131,5287
+    def cost(self,x):cost160,6282
+    def grad(self, i, x, out):grad168,6557
+    def setLinearizationPoint(self,x, gauss_newton_approx=False):setLinearizationPoint183,7074
+    def apply_ij(self,i,j,dir,out):apply_ij188,7282
+class ContinuousStateObservation(Misfit):ContinuousStateObservation202,7831
+    def __init__(self, Vh, dX, bcs, form = None):__init__207,8028
+    def cost(self,x):cost243,9610
+    def grad(self, i, x, out):grad255,10107
+    def setLinearizationPoint(self,x, gauss_newton_approx=False):setLinearizationPoint268,10618
+    def apply_ij(self,i,j,dir,out):apply_ij272,10795
+class MultiStateMisfit(Misfit):MultiStateMisfit284,11248
+    def __init__(self, misfits):__init__285,11280
+    def append(self, misfit):append289,11390
+    def cost(self,x):cost293,11484
+    def grad(self, i, x, out):grad300,11665
+    def setLinearizationPoint(self,x, gauss_newton_approx=False):setLinearizationPoint312,12085
+    def apply_ij(self,i,j,dir,out):apply_ij318,12325
+
+hippylib/scheduling/collective.py,492
+import dolfin as dldl16,627
+import numpy as npnp17,647
+class NullCollective:NullCollective20,690
+    def __init__(self):__init__24,828
+    def size(self):size27,870
+    def rank(self):rank30,912
+    def allReduce(self, v, op):allReduce33,954
+class MultipleSerialPDEsCollective:MultipleSerialPDEsCollective41,1205
+    def __init__(self, comm):__init__45,1369
+    def size(self):size51,1501
+    def rank(self):rank54,1562
+    def allReduce(self, v, op):allReduce57,1623
+
+hippylib/scheduling/__init__.py,0
+
+hippylib/forward_uq/qoi.py,501
+import dolfin as dldl16,631
+import numpy as npnp17,651
+class Qoi(object):Qoi22,768
+    def eval(self, x):eval31,1169
+    def grad(self,i, x,g):grad39,1452
+    def setLinearizationPoint(self, x):setLinearizationPoint46,1726
+    def apply_ij(self,i,j, dir, out):apply_ij49,1862
+def qoiVerify(qoi, x, generate_state, h=None, plotting = True):qoiVerify57,2167
+def qoiVerifyPlotErrors(eps, err_grad, err_H):qoiVerifyPlotErrors103,3397
+        import matplotlib.pyplot as pltplt105,3453
+
+hippylib/forward_uq/varianceReductionMC.py,175
+import dolfin as dldl16,631
+import numpy as npnp17,651
+def varianceReductionMC(prior, rqoi, taylor_qoi, nsamples, filename="realizations.txt"):varianceReductionMC20,708
+
+hippylib/forward_uq/variationalQoi.py,434
+import dolfin as dldl16,631
+class VariationalQoi(Qoi):VariationalQoi24,955
+    def __init__(self, Vh, qoi_varf):__init__25,982
+    def eval(self, x):eval31,1104
+    def grad(self, i, x, g):grad40,1435
+    def grad_state(self,x,g):grad_state48,1633
+    def grad_param(self,x,g):grad_param56,2007
+    def apply_ij(self,i,j, dir, out):apply_ij64,2389
+    def setLinearizationPoint(self, x):setLinearizationPoint72,2659
+
+hippylib/forward_uq/__init__.py,0
+
+hippylib/forward_uq/parameter2QoiMap.py,1720
+import numpy as npnp16,631
+import dolfin as dldl17,650
+class Parameter2QoiHessian:Parameter2QoiHessian22,768
+    def __init__(self, p2qoimap):__init__29,1032
+    def init_vector(self, x, dim):init_vector43,1567
+    def mult(self,x,y):mult61,2358
+    def inner(self,x,y):inner81,3102
+class Parameter2QoiMap:Parameter2QoiMap92,3428
+    def __init__(self, problem, qoi):__init__93,3452
+    def generate_vector(self, component = "ALL"):generate_vector103,3830
+    def init_parameter(self, m):init_parameter129,4900
+    def eval(self, x):eval135,5088
+    def solveFwd(self, out, x):solveFwd144,5375
+    def solveAdj(self, out, x):solveAdj161,5949
+    def evalGradientParameter(self,x, mg):evalGradientParameter180,6602
+    def setLinearizationPoint(self, x):setLinearizationPoint197,7216
+    def solveFwdIncremental(self, sol, rhs):solveFwdIncremental209,7627
+    def solveAdjIncremental(self, sol, rhs):solveAdjIncremental220,8013
+    def applyC(self, dm, out):applyC231,8382
+    def applyCt(self, dp, out):applyCt245,8879
+    def applyWuu(self, du, out):applyWuu260,9393
+    def applyWum(self, dm, out):applyWum277,10004
+    def applyWmu(self, du, out):applyWmu295,10639
+    def applyWmm(self, dm, out):applyWmm312,11271
+    def reduced_eval(self, m):reduced_eval329,11915
+    def reduced_gradient(self, m, g):reduced_gradient341,12356
+    def hessian(self, m=None, x=None):hessian354,12842
+def parameter2QoiMapVerify(rQOI, m0, h=None, eps=None, plotting = True,verbose = True):parameter2QoiMapVerify378,13721
+def parameter2QoiMapVerifyPlotErrors(eps, err_grad, err_H):parameter2QoiMapVerifyPlotErrors482,16723
+        import matplotlib.pyplot as pltplt484,16792
+
+hippylib/forward_uq/taylorApproximationQoi.py,498
+import numpy as npnp16,631
+class TaylorApproximationQoi:TaylorApproximationQoi20,769
+    def __init__(self, p2qoimap, distribution):__init__27,1163
+    def computeLowRankFactorization(self, Omega):computeLowRankFactorization50,2016
+    def expectedValue(self, order=2):expectedValue80,3375
+    def variance(self, order=2):variance98,3917
+    def eval(self, m, order=2):eval124,4757
+def plotEigenvalues(d):plotEigenvalues142,5396
+        import matplotlib.pyplot as pltplt148,5579
+
+hippylib/mcmc/chain.py,440
+class NullQoi(object):NullQoi20,711
+    def __init__(self):__init__21,734
+    def eval(self,x):eval23,771
+class SampleStruct:SampleStruct28,814
+    def __init__(self, kernel):__init__29,834
+    def assign(self, other):assign43,1357
+class MCMC(object):MCMC56,1710
+    def __init__(self, kernel):__init__57,1730
+    def run(self, m0, qoi=None, tracer = None):run68,2106
+    def consume_random(self):consume_random111,4139
+
+hippylib/mcmc/tracers.py,467
+import numpy as npnp19,730
+class NullTracer(object):NullTracer22,751
+    def __init__(self):__init__23,777
+    def append(self,current, q):append25,814
+class QoiTracer(object):QoiTracer28,865
+    def __init__(self, n):__init__29,890
+    def append(self,current, q):append33,977
+class FullTracer(object):FullTracer37,1067
+    def __init__(self, n, Vh, par_fid = None, state_fid = None):__init__38,1093
+    def append(self,current, q):append45,1309
+
+hippylib/mcmc/kernels.py,1784
+import numpy as npnp19,677
+import dolfin as dldl20,696
+class MALAKernel:MALAKernel23,718
+    def __init__(self, model):__init__24,736
+    def name(self):name33,1062
+    def derivativeInfo(self):derivativeInfo36,1117
+    def init_sample(self, s):init_sample39,1169
+    def sample(self, current, proposed): sample46,1484
+    def proposal(self, current):proposal58,1889
+    def acceptance_ratio(self, origin, destination):acceptance_ratio68,2377
+    def consume_random(self):consume_random78,2785
+class pCNKernel:pCNKernel84,2900
+    def __init__(self, model):__init__85,2917
+    def name(self):name93,3197
+    def derivativeInfo(self):derivativeInfo96,3239
+    def init_sample(self, current):init_sample99,3287
+    def sample(self, current, proposed): sample103,3469
+    def proposal(self, current):proposal113,3772
+    def consume_random(self):consume_random127,4290
+class gpCNKernel:gpCNKernel131,4392
+    def __init__(self, model, nu):__init__138,4655
+    def name(self):name148,4984
+    def derivativeInfo(self):derivativeInfo151,5027
+    def init_sample(self, current):init_sample154,5075
+    def sample(self, current, proposed): sample158,5257
+    def delta(self,sample):delta168,5581
+    def proposal(self, current):proposal173,5751
+    def consume_random(self):consume_random189,6342
+class ISKernel:ISKernel194,6449
+    def __init__(self, model, nu):__init__195,6465
+    def name(self):name204,6739
+    def derivativeInfo(self):derivativeInfo207,6780
+    def init_sample(self, current):init_sample210,6828
+    def sample(self, current, proposed): sample214,7010
+    def delta(self,sample):delta224,7334
+    def proposal(self, current):proposal229,7504
+    def consume_random(self):consume_random240,7897
+
+hippylib/mcmc/__init__.py,0
+
+hippylib/mcmc/diagnostics.py,245
+import numpy as npnp16,627
+def _acorr(mean_free_samples, lag, norm = 1):_acorr18,647
+def _acorr_vs_lag(samples, max_lag):_acorr_vs_lag22,891
+def integratedAutocorrelationTime(samples, max_lag = None):integratedAutocorrelationTime36,1232
+
+hippylib/__init__.py,0
+
+hippylib/TAGS,0
+
+hippylib/algorithms/steepestDescent.py,308
+def SteepestDescent_ParameterList():SteepestDescent_ParameterList19,735
+class SteepestDescent:SteepestDescent30,1480
+    termination_reasons = [termination_reasons51,2650
+    def __init__(self, model, parameters = SteepestDescent_ParameterList()):__init__57,2934
+    def solve(self,x):solve71,3414
+
+hippylib/algorithms/linSolvers.py,250
+import dolfin as dldl16,627
+def PETScKrylovSolver(comm, method, preconditioner):PETScKrylovSolver19,649
+def _PETScLUSolver_set_operator(self, A):_PETScLUSolver_set_operator27,872
+def PETScLUSolver(comm, method='default'):PETScLUSolver34,1058
+
+hippylib/algorithms/randomizedEigensolver.py,430
+import dolfin as dldl15,626
+import numpy as npnp18,743
+def singlePass(A,Omega,k,s=1,check=False):singlePass40,1470
+def doublePass(A,Omega,k,s,check = False):doublePass89,2739
+def singlePassG(A, B, Binv, Omega,k, s = 1, check = False):singlePassG138,4087
+def doublePassG(A, B, Binv, Omega, k, s = 1, check = False):doublePassG191,5655
+def check_std(A, U, d):check_std241,7195
+def check_g(A,B, U, d):check_g282,8416
+
+hippylib/algorithms/cpp_multivector/multivector.cpp,1786
+namespace hippylibhippylib27,812
+MultiVector::MultiVector()MultiVector30,834
+MultiVector::MultiVector(const dolfin::GenericVector & v, std::size_t nvec):MultiVector34,866
+MultiVector::MultiVector(const MultiVector & orig):MultiVector44,1017
+void MultiVector::setSizeFromVector(const dolfin::GenericVector & v, std::size_t nvec)setSizeFromVector52,1189
+std::shared_ptr<const dolfin::GenericVector> MultiVector::operator[](std::size_t i) constoperator []64,1359
+std::shared_ptr<dolfin::GenericVector> MultiVector::operator[](std::size_t i)operator []69,1469
+void MultiVector::dot(const dolfin::GenericVector & v, dolfin::Array<double> & m) constdot75,1568
+void MultiVector::dot(const MultiVector & other, dolfin::Array<double> & m) constdot82,1732
+void MultiVector::dot_self(dolfin::Array<double> & m) constdot_self95,1992
+void MultiVector::reduce(dolfin::GenericVector & v, const dolfin::Array<double> & alpha) constreduce107,2257
+void MultiVector::axpy(double a, const dolfin::GenericVector & y)axpy114,2441
+void MultiVector::axpy(const dolfin::Array<double> & a, const MultiVector & y)axpy120,2551
+void MultiVector::scale(std::size_t k, double a)scale130,2779
+void MultiVector::scale(const dolfin::Array<double> & a)scale135,2856
+void MultiVector::zero()zero142,3002
+void MultiVector::norm_all(const std::string norm_type, dolfin::Array<double> & norms) constnorm_all148,3067
+void MultiVector::swap(MultiVector & other)swap155,3253
+MultiVector::~MultiVector()~MultiVector160,3322
+PYBIND11_MODULE(SIGNATURE, m) {PYBIND11_MODULE167,3359
+				{__anon2c5c403c0102182,4375
+				{__anon2c5c403c0202193,4748
+        		{__anon2c5c403c0302205,5221
+				{__anon2c5c403c0402216,5764
+				{__anon2c5c403c0502227,6214
+				{__anon2c5c403c0602238,6579
+
+hippylib/algorithms/cpp_multivector/multivector.hpp,199
+namespace hippylibhippylib21,715
+class MultiVectorMultiVector24,737
+	std::size_t nvec() const {return mv.size();}nvec31,887
+	std::vector<std::shared_ptr<dolfin::GenericVector> > mv;mv67,1944
+
+hippylib/algorithms/NewtonCG.py,543
+def LS_ParameterList():LS_ParameterList23,848
+def TR_ParameterList():TR_ParameterList34,1284
+def ReducedSpaceNewtonCG_ParameterList():ReducedSpaceNewtonCG_ParameterList44,1632
+class ReducedSpaceNewtonCG:ReducedSpaceNewtonCG66,3019
+    termination_reasons = [termination_reasons104,5424
+    def __init__(self, model, parameters=ReducedSpaceNewtonCG_ParameterList(), callback = None):__init__111,5782
+    def solve(self, x):solve136,6890
+    def _solve_ls(self,x):_solve_ls159,7669
+    def _solve_tr(self,x):_solve_tr276,12467
+
+hippylib/algorithms/traceEstimator.py,354
+import dolfin as dldl16,627
+def rademacher_engine(v):rademacher_engine21,733
+def gaussian_engine(v):gaussian_engine27,872
+class TraceEstimator:TraceEstimator33,1010
+    def __init__(self, A, solve_mode=False, accurancy = 1e-1, init_vector=None, random_engine=ra__init__45,1586
+    def __call__(self, min_iter=5, max_iter=100):__call__75,2850
+
+hippylib/algorithms/cgsampler.py,174
+class CGSampler:CGSampler20,703
+    def __init__(self):__init__29,1028
+    def set_operator(self, A):set_operator52,1610
+    def sample(self, noise, s):sample67,2116
+
+hippylib/algorithms/randomizedSVD.py,273
+import dolfin as dldl16,627
+import numpy as npnp19,758
+def accuracyEnhancedSVD(A,Omega,k,s=1,check=False):accuracyEnhancedSVD36,1236
+def singlePassSVD(A,Omega_c,Omega_r,k,check=False):singlePassSVD99,3429
+def check_SVD(A, U, sigma,V,tol = 1e-1):check_SVD168,5993
+
+hippylib/algorithms/lowRankOperator.py,463
+import numpy as npnp18,706
+class LowRankOperator:LowRankOperator20,726
+    def __init__(self,d,U, my_init_vector = None):__init__28,1005
+    def init_vector(self, x, dim):init_vector36,1243
+    def mult(self,x,y):mult43,1510
+    def inner(self, x, y):inner52,1734
+    def solve(self, sol, rhs):solve57,1876
+    def get_diagonal(self, diag):get_diagonal67,2109
+    def trace(self,W=None):trace80,2436
+    def trace2(self,W=None):trace2105,3401
+
+hippylib/algorithms/linalg.py,1368
+import dolfin as dldl16,627
+import numpy as npnp20,712
+def amg_method(amg_type="ml_amg"):amg_method22,732
+def MatMatMult(A,B):MatMatMult34,1087
+def MatPtAP(A,P):MatPtAP46,1413
+def MatAtB(A,B):MatAtB57,1727
+def Transpose(A):Transpose69,2061
+def SetToOwnedGid(v, gid, val):SetToOwnedGid80,2316
+def GetFromOwnedGid(v, gid):GetFromOwnedGid84,2371
+def to_dense(A, mpi_comm = dl.MPI.comm_world ):to_dense88,2424
+def trace(A, mpi_comm = dl.MPI.comm_world ):trace130,3557
+def get_diagonal(A, d):get_diagonal148,3959
+def estimate_diagonal_inv2(Asolver, k, d):estimate_diagonal_inv2175,4674
+class DiagonalOperator:DiagonalOperator207,5737
+    def __init__(self, d):__init__208,5761
+    def init_vector(self,x,dim):init_vector211,5816
+    def mult(self,x,y):mult214,5895
+    def inner(self,x,y):inner219,5990
+class Solver2Operator:Solver2Operator223,6071
+    def __init__(self,S,mpi_comm=dl.MPI.comm_world, init_vector = None):__init__224,6094
+    def init_vector(self, x, dim):init_vector237,6665
+    def mult(self,x,y):mult244,6872
+    def inner(self, x, y):inner247,6931
+class Operator2Solver:Operator2Solver251,7029
+    def __init__(self,op, mpi_comm=dl.MPI.comm_world):__init__252,7052
+    def init_vector(self, x, dim):init_vector256,7176
+    def solve(self,y,x):solve262,7335
+    def inner(self, x, y):inner265,7395
+
+hippylib/algorithms/bfgs.py,854
+import numpy as npnp16,627
+def BFGSoperator_ParameterList():BFGSoperator_ParameterList22,794
+def BFGS_ParameterList():BFGS_ParameterList28,1039
+class RescaledIdentity(object):RescaledIdentity42,1973
+    def __init__(self, init_vector=None):__init__46,2098
+    def init_vector(self, x, dim):init_vector50,2211
+    def solve(self, x, b):solve56,2346
+class BFGS_operator:BFGS_operator61,2419
+    def __init__(self,  parameters=BFGSoperator_ParameterList()):__init__63,2441
+    def set_H0inv(self, H0inv):set_H0inv72,2675
+    def solve(self, x, b):solve84,2922
+    def update(self, s, y):update121,3979
+class BFGS:BFGS174,5481
+    termination_reasons = [termination_reasons194,6566
+    def __init__(self, model, parameters=BFGS_ParameterList()):__init__201,6920
+    def solve(self, x, H0inv, bounds_xPARAM=None):solve218,7420
+
+hippylib/algorithms/__init__.py,0
+
+hippylib/algorithms/multivector.py,1150
+import dolfin as dldl16,627
+import numpy as npnp18,699
+abspath = os.path.dirname( os.path.abspath(__file__) )abspath21,729
+source_directory = os.path.join(abspath,"cpp_multivector")source_directory22,784
+    cpp_code    = cpp_file.read()cpp_code24,921
+include_dirs = [".", source_directory]include_dirs27,957
+cpp_module = dl.compile_cpp_code(cpp_code, include_dirs=include_dirs)cpp_module28,996
+class MultiVector(cpp_module.MultiVector):MultiVector31,1068
+    def dot_v(self, v):dot_v32,1111
+    def dot_mv(self,mv):dot_mv35,1167
+    def Borthogonalize(self,B):Borthogonalize40,1309
+    def orthogonalize(self):orthogonalize62,1989
+    def _mgs_stable(self, B):_mgs_stable83,2641
+    def _mgs_reortho(self):_mgs_reortho138,4527
+    def export(self, Vh, filename, varname = "mv", normalize=False):export175,5589
+    def _exportXDMF(self, Vh, filename, varname, normalize):_exportXDMF191,6238
+    def _exportFile(self, Vh, filename, varname, normalize):_exportFile213,7008
+def MatMvMult(A, x, y):MatMvMult232,7621
+def MatMvTranspmult(A, x, y):MatMvTranspmult240,7856
+def MvDSmatMult(X, A, Y):MvDSmatMult249,8207
+
+hippylib/algorithms/cgsolverSteihaug.py,692
+import dolfin as dldl16,627
+def CGSolverSteihaug_ParameterList():CGSolverSteihaug_ParameterList20,708
+class CGSolverSteihaug:CGSolverSteihaug33,1543
+    reason = ["Maximum Number of Iterations Reached",reason67,3322
+    def __init__(self, parameters=CGSolverSteihaug_ParameterList(),comm = dl.MPI.comm_world ):__init__72,3542
+    def set_operator(self, A):set_operator94,4151
+    def set_preconditioner(self, B_solver):set_preconditioner105,4428
+    def set_TR(self,radius,B_op):set_TR111,4572
+    def update_x_without_TR(self,x,alpha,d):update_x_without_TR118,4813
+    def update_x_with_TR(self,x,alpha,d):update_x_with_TR122,4904
+    def solve(self,x,b):solve152,5868
+
+hippylib/test/test_deprecation_warnings.py,437
+def blabla(a):blabla24,772
+def blu1(a):blu128,853
+class TestDeprecationWarnings(unittest.TestCase):TestDeprecationWarnings32,893
+    def test_deprecated_no_name(self):test_deprecated_no_name36,999
+    def test_deprecated_with_name(self):test_deprecated_with_name43,1329
+    import dolfin as dldl51,1681
+    mpi_comm_world = dl.MPI.comm_worldmpi_comm_world52,1705
+    mpi_size = dl.MPI.size(mpi_comm_world)mpi_size53,1744
+
+hippylib/test/ptest_collectives.py,384
+import dolfin as dldl17,644
+import numpy as npnp18,664
+from hippylib import scheduling as clcl25,765
+class TestCollectives(unittest.TestCase):TestCollectives27,804
+    def setUp(self):setUp28,846
+    def testfloat(self):testfloat38,1163
+    def testint(self):testint46,1406
+    def testndarray(self):testndarray55,1638
+    def testdlVector(self):testdlVector71,2118
+
+hippylib/test/ptest_randomizedSVD.py,561
+import dolfin as dldl17,644
+import numpy as npnp19,675
+class J_op:J_op25,756
+    def __init__(self, B, Asolver, C):__init__29,831
+    def init_vector(self, x, dim):init_vector40,1229
+    def mpi_comm(self):mpi_comm48,1429
+    def mult(self, x, y):mult51,1487
+    def transpmult(self, x, y):transpmult56,1649
+class TestRandomizedSVD(unittest.TestCase):TestRandomizedSVD62,1839
+    def setUp(self):setUp63,1883
+    def testAccuracyEnhancedSVD(self):testAccuracyEnhancedSVD113,3447
+    def testSinglePassSVD(self):testSinglePassSVD146,4641
+
+hippylib/test/ptest_randomizedEigensolver.py,608
+import dolfin as dldl17,644
+import numpy as npnp19,675
+class Hop:Hop28,944
+    def __init__(self,B, Asolver, C):__init__32,1028
+    def mult(self,x,y):mult47,1425
+    def mpi_comm(self):mpi_comm55,1733
+    def init_vector(self,x,dim):init_vector58,1791
+class TestRandomizedEigensolver(unittest.TestCase):TestRandomizedEigensolver63,1859
+    def setUp(self):setUp64,1911
+    def testSinglePass(self):testSinglePass118,3692
+    def testDoublePass(self):testDoublePass145,4531
+    def testSinglePassG(self):testSinglePassG172,5370
+    def testDoublePassG(self):testDoublePassG201,6292
+
+hippylib/test/ptest_numpy2expression.py,244
+import dolfin as dldl17,644
+import numpy as npnp18,664
+class TestNumpy2Expression(unittest.TestCase):TestNumpy2Expression26,788
+    def test1D(self):test1D28,844
+    def test2D(self):test2D50,1470
+    def test3D(self):test3D78,2312
+
+hippylib/test/test_gaussian_real_prior.py,1064
+import dolfin as dldl17,644
+import numpy as npnp18,664
+def get_prior_sample(pr):get_prior_sample26,788
+class TestGaussianRealPrior(unittest.TestCase):TestGaussianRealPrior38,1015
+    def setUp(self):setUp43,1123
+    def tearDown(self):tearDown74,2051
+    def test_incompatible_cov(self):test_incompatible_cov78,2108
+    def test_int_cov(self):test_int_cov87,2402
+    def test_cost_at_mean(self):test_cost_at_mean97,2676
+    def test_cost_sample(self):test_cost_sample108,2973
+    def test_sample_mean(self):test_sample_mean124,3411
+    def test_sample_cov(self):test_sample_cov142,3946
+    def test_trace(self):test_trace162,4503
+    def test_grad(self):test_grad175,4848
+    def test_Rinv_sqrt(self):test_Rinv_sqrt190,5321
+    def test_R_sqrt(self):test_R_sqrt201,5635
+    def test_precision_matrix(self):test_precision_matrix210,5940
+    def test_covariance_matrix(self):test_covariance_matrix219,6233
+    mpi_comm_world = dl.MPI.comm_worldmpi_comm_world230,6567
+    mpi_size = dl.MPI.size(mpi_comm_world)mpi_size231,6606
+
+hippylib/test/__init__.py,0
+
+hippylib/test/test_experimental_warnings.py,444
+def blabla(a):blabla24,776
+def blu1(a):blu128,859
+class TestExperimentalWarnings(unittest.TestCase):TestExperimentalWarnings32,899
+    def test_experimental_no_name(self):test_experimental_no_name36,1006
+    def test_deprecated_with_name(self):test_deprecated_with_name43,1353
+    import dolfin as dldl51,1720
+    mpi_comm_world = dl.MPI.comm_worldmpi_comm_world52,1744
+    mpi_size = dl.MPI.size(mpi_comm_world)mpi_size53,1783
+
+hippylib/test/ptest_numpy2meshFunction.py,248
+import dolfin as dldl17,644
+import numpy as npnp18,664
+class TestNumpy2MeshFunction(unittest.TestCase):TestNumpy2MeshFunction26,788
+    def test1D(self):test1D28,846
+    def test2D(self):test2D45,1404
+    def test3D(self):test3D67,2144
+
+hippylib/test/ptest_pointwise_observation.py,375
+import dolfin as dldl17,644
+import numpy as npnp18,664
+class TestPointwiseObservation(unittest.TestCase):TestPointwiseObservation26,788
+    def setUp(self):setUp27,839
+    def testScalarObservations(self):testScalarObservations37,1196
+    def testVectorObservations(self):testVectorObservations51,1681
+    def testRTObservations(self):testRTObservations65,2226
+
+hippylib/test/ptest_qoi.py,521
+import dolfin as dldl17,644
+import numpy as npnp19,675
+class GammaCenter(dl.SubDomain):GammaCenter25,756
+    def inside(self, x, on_boundary):inside26,789
+def u_boundary(x, on_boundary):u_boundary29,876
+def v_boundary(x, on_boundary):v_boundary32,990
+class TestVariationalQoi(unittest.TestCase):TestVariationalQoi35,1104
+    def setUp(self):setUp36,1149
+        def pde_varf(u,m,p):pde_varf56,1836
+        def qoi_varf(u,m):qoi_varf68,2362
+    def testVariationalQOI(self):testVariationalQOI74,2525
+
+hippylib/test/ptest_multivector.py,294
+import dolfin as dldl17,644
+import numpy as npnp19,675
+class TestMultiVector(unittest.TestCase):TestMultiVector26,786
+    def setUp(self):setUp27,828
+    def testOrthogonalization(self):testOrthogonalization42,1326
+    def testBOrthogonalization(self):testBOrthogonalization51,1639
+
+hippylib/utils/experimental.py,189
+def experimental(name=None, version=None, msg=""):experimental24,851
+    def experimental_function(f):experimental_function37,1480
+        def wrapped(*args, **kwargs):wrapped39,1532
+
+hippylib/utils/parameterList.py,252
+class ParameterList(object):ParameterList16,627
+    def __init__(self, data):__init__21,831
+    def __getitem__(self,key):__getitem__27,998
+    def __setitem__(self,key, value):__setitem__33,1163
+    def showMe(self, indent=""):showMe39,1336
+
+hippylib/utils/deprecate.py,181
+def deprecated(name=None, version=None, msg=""):deprecated24,848
+    def deprecated_function(f):deprecated_function37,1456
+        def wrapped(*args, **kwargs):wrapped39,1506
+
+hippylib/utils/cpp_cartesian2mesh/pybind_module.cpp,50
+PYBIND11_MODULE(SIGNATURE, m)PYBIND11_MODULE1,0
+
+hippylib/utils/cpp_cartesian2mesh/numpy2MeshFunction.cpp,379
+void numpy2MeshFunction3D(dl::Mesh & mesh,numpy2MeshFunction3D15,244
+void numpy2MeshFunction2D(dl::Mesh & mesh,numpy2MeshFunction2D57,1122
+void numpy2MeshFunction1D(dl::Mesh & mesh,numpy2MeshFunction1D91,1804
+void numpy2MeshFunction(dl::Mesh & mesh,numpy2MeshFunction115,2292
+void numpy2MeshFunction_with_offsets(dl::Mesh & mesh,numpy2MeshFunction_with_offsets129,2742
+
+hippylib/utils/cpp_cartesian2mesh/numpy2Expression.cpp,1707
+class NumpyScalarExpression3D : public dolfin::ExpressionNumpyScalarExpression3D10,183
+	NumpyScalarExpression3D() :NumpyScalarExpression3D13,251
+void eval(Eigen::Ref<Eigen::VectorXd> values, Eigen::Ref<const Eigen::VectorXd> x) consteval25,391
+  void setData(py::array_t<double>& d, double & hh_x, double & hh_y, double & hh_z)setData77,2046
+  void setOffset(double & offset_x, double & offset_y, double & offset_z)setOffset84,2196
+  py::array_t<double> data;data92,2351
+  double h_x;h_x93,2379
+  double h_y;h_y94,2393
+  double h_z;h_z95,2407
+  double off_x;off_x96,2421
+  double off_y;off_y97,2437
+  double off_z;off_z98,2453
+class NumpyScalarExpression2D : public dolfin::ExpressionNumpyScalarExpression2D102,2474
+	NumpyScalarExpression2D() :NumpyScalarExpression2D105,2542
+void eval(Eigen::Ref<Eigen::VectorXd> values, Eigen::Ref<const Eigen::VectorXd> x) consteval115,2660
+  void setData(py::array_t<double>& d, double & hh_x, double & hh_y)setData152,3660
+  void setOffset(double & offset_x, double & offset_y)setOffset158,3780
+  py::array_t<double> data;data165,3895
+  double h_x;h_x166,3923
+  double h_y;h_y167,3937
+  double off_x;off_x168,3951
+  double off_y;off_y169,3967
+class NumpyScalarExpression1D : public dolfin::ExpressionNumpyScalarExpression1D173,3988
+	NumpyScalarExpression1D() :NumpyScalarExpression1D176,4056
+void eval(Eigen::Ref<Eigen::VectorXd> values, Eigen::Ref<const Eigen::VectorXd> x) consteval184,4152
+  void setData(py::array_t<double>& d, double & hh_x)setData209,4687
+  void setOffset(double & offset_x)setOffset214,4777
+  py::array_t<double> data;data220,4852
+  double h_x;h_x221,4880
+  double off_x;off_x222,4894
+
+hippylib/utils/__init__.py,0
+
+hippylib/utils/cpp_rand/PRNG.cpp,786
+namespace hippylibhippylib23,754
+Random::Random(int seed):Random25,775
+void Random::split(int _rank, int _nproc, int _block_size)split33,859
+double Random::uniform(double a, double b)uniform38,963
+double Random::normal(double mu, double sigma)normal44,1062
+double Random::gamma(double alpha, double beta)gamma50,1165
+double Random::rademacher()rademacher60,1437
+void Random::uniform(dolfin::GenericVector & v, double a, double b)uniform69,1544
+void Random::normal(dolfin::GenericVector & v, double sigma, bool zero_out)normal86,1933
+void Random::gamma(dolfin::GenericVector & v, double alpha, double beta, bool dont_speckle)gamma106,2353
+void Random::rademacher(dolfin::GenericVector & v)rademacher133,2916
+PYBIND11_MODULE(SIGNATURE, m) {PYBIND11_MODULE157,3341
+
+hippylib/utils/cpp_rand/PRNG.h,1035
+namespace hippylibhippylib21,718
+class PRNGPRNG25,763
+	typedef typename Engine::result_type result_type;result_type28,784
+	explicit PRNG(result_type value = Engine::default_seed):PRNG30,836
+	explicit PRNG( Sseq & s):PRNG41,1016
+	void seed( result_type value = Engine::default_seed )seed52,1133
+	void seed( Sseq& seq )seed59,1261
+	result_type operator()()operator ()65,1332
+	void discard( unsigned long long z )discard80,1528
+	static constexpr result_type min()min86,1623
+	static constexpr result_type max()max91,1690
+	void split(int _rank, int _nproc, int _block_size)split96,1757
+	Engine eng;eng115,2095
+	int rank;rank116,2108
+	int nproc;nproc117,2119
+	int block_size;block_size118,2131
+	bool is_splitted;is_splitted119,2148
+	int used;used120,2167
+class RandomRandom125,2184
+	PRNG<std::mt19937> eng;eng141,2695
+	std::normal_distribution<> d_normal;d_normal142,2720
+	std::uniform_real_distribution<> d_uniform;d_uniform143,2758
+	std::bernoulli_distribution d_bernoulli;d_bernoulli144,2803
+
+hippylib/utils/random.py,973
+import dolfin as dldl16,627
+abspath = os.path.dirname( os.path.abspath(__file__) )abspath19,658
+source_directory = os.path.join(abspath,"cpp_rand")source_directory20,713
+    cpp_code    = cpp_file.read()cpp_code23,837
+include_dirs = [".", source_directory]include_dirs26,873
+cpp_module = dl.compile_cpp_code(cpp_code, include_dirs=include_dirs)cpp_module29,922
+class Random(cpp_module.Random):Random32,994
+    def __init__(self,myid=0, nproc=1, blocksize=1000000, seed=1):__init__36,1117
+    def uniform(self,a,b, out=None):uniform50,1683
+    def normal(self, sigma, out=None):normal68,2377
+    def normal_perturb(self,sigma, out):normal_perturb85,3098
+    def speckle(self,M, out):speckle99,3716
+    def rademacher(self, out=None):rademacher113,4326
+_world_rank = dl.MPI.rank(dl.MPI.comm_world)_world_rank126,4807
+_world_size = dl.MPI.size(dl.MPI.comm_world)_world_size127,4852
+parRandom = Random(_world_rank, _world_size)parRandom129,4898
+
+hippylib/utils/warnings.py,171
+class hIPPYlibDeprecationWarning(DeprecationWarning):hIPPYlibDeprecationWarning16,631
+class hIPPYlibExperimentalWarning(UserWarning):hIPPYlibExperimentalWarning19,695
+
+hippylib/utils/nb.py,1172
+import matplotlib.pyplot as pltplt16,627
+import matplotlib.tri as tritri17,659
+import matplotlib.colors as clscls18,688
+import dolfin as dldl19,720
+import numpy as npnp20,740
+def _mesh2triang(mesh):_mesh2triang27,835
+def _mplot_cellfunction(cellfn):_mplot_cellfunction31,951
+def _mplot_function(f, vmin, vmax, logscale):_mplot_function36,1090
+def plot(obj, colorbar=True, subplot_loc=None, mytitle=None, show_axis='off', vmin=None, vmax=Noplot66,2459
+def multi1_plot(objs, titles, same_colorbar=True, show_axis='off', logscale=False, vmin=None, vmmulti1_plot102,3558
+def plot_pts(points, values, colorbar=True, subplot_loc=None, mytitle=None, show_axis='on', vminplot_pts137,4701
+def show_solution(Vh, ic, state, same_colorbar=True, colorbar=True, mytitle=None, show_solution170,5535
+def animate(Vh, state, same_colorbar=True, colorbar=True,animate214,6804
+    def my_animate(i):my_animate236,7356
+def coarsen_v(fun, nx = 16, ny = 16):coarsen_v245,7763
+def plot_eigenvalues(d, mytitle = None, subplot_loc=None):plot_eigenvalues254,8071
+def plot_eigenvectors(Vh, U, mytitle, which = [0,1,2,5,10,15], cmap = None):plot_eigenvectors266,8397
+
+hippylib/utils/vector2function.py,60
+def vector2Function(x,Vh, **kwargs):vector2Function18,656
+
+hippylib/utils/cartesian2mesh.py,712
+import dolfin as dldl6,49
+abspath = os.path.dirname( os.path.abspath(__file__) )abspath9,84
+source_directory = os.path.join(abspath,"cpp_cartesian2mesh")source_directory10,139
+cpp_code = ""cpp_code11,201
+include_dirs = [".", source_directory]include_dirs16,413
+cpp_module = dl.compile_cpp_code(cpp_code, include_dirs=include_dirs)cpp_module17,452
+numpy2MeshFunction = cpp_module.numpy2MeshFunctionnumpy2MeshFunction19,523
+NumpyScalarExpression3D = cpp_module.NumpyScalarExpression3DNumpyScalarExpression3D20,574
+NumpyScalarExpression2D = cpp_module.NumpyScalarExpression2DNumpyScalarExpression2D21,635
+NumpyScalarExpression1D = cpp_module.NumpyScalarExpression1DNumpyScalarExpression1D22,696
+
+hippylib/utils/checkDolfinVersion.py,168
+import dolfin as dldl16,627
+def dlversion():dlversion19,649
+supported_versions = [(2019,1,0)]supported_versions25,800
+def checkdlversion():checkdlversion27,835
+
+TAGS,0
+
+README.md,0
+
+applications/ad_diff/targets.txt,0
+
+applications/ad_diff/model_ad_diff.py,5822
+import dolfin as dldl16,627
+import numpy as npnp18,658
+import matplotlib.pyplot as pltplt19,677
+class SpaceTimePointwiseStateObservation(Misfit):SpaceTimePointwiseStateObservation27,836
+    def __init__(self, Vh,__init__28,886
+    def observe(self, x, obs):        observe56,1751
+    def cost(self, x):cost64,2024
+    def grad(self, i, x, out):grad75,2433
+    def setLinearizationPoint(self, x, gauss_newton_approx=False):setLinearizationPoint89,3010
+    def apply_ij(self, i,j, direction, out):apply_ij92,3095
+class TimeDependentAD:    TimeDependentAD106,3589
+    def __init__(self, mesh, Vh, prior, misfit, simulation_times, wind_velocity, gls_stab):__init__107,3616
+    def generate_vector(self, component = "ALL"):generate_vector153,5639
+    def init_parameter(self, m):init_parameter177,6470
+    def cost(self, x):cost181,6559
+    def solveFwd(self, out, x):solveFwd192,6865
+    def solveAdj(self, out, x):solveAdj205,7238
+    def evalGradientParameter(self,x, mg, misfit_only=False):evalGradientParameter234,8067
+    def setPointForHessianEvaluations(self, x, gauss_newton_approx=False):setPointForHessianEvaluations258,8695
+    def solveFwdIncremental(self, sol, rhs):solveFwdIncremental269,9067
+    def solveAdjIncremental(self, sol, rhs):solveAdjIncremental290,9637
+    def applyC(self, dm, out):applyC310,10219
+    def applyCt(self, dp, out):applyCt323,10564
+    def applyWuu(self, du, out):applyWuu332,10782
+    def applyWum(self, dm, out):applyWum337,10892
+    def applyWmu(self, du, out):applyWmu341,10950
+    def applyR(self, dm, out):applyR344,11007
+    def applyWmm(self, dm, out):applyWmm347,11077
+    def exportState(self, x, filename, varname):exportState350,11138
+def v_boundary(x,on_boundary):v_boundary363,11724
+def q_boundary(x,on_boundary):q_boundary366,11779
+def computeVelocityField(mesh):computeVelocityField369,11876
+    def strain(v):strain388,12503
+    parser = argparse.ArgumentParser(description='Model Advection Diffusion')parser403,13037
+    args = parser.parse_args()args412,13445
+    sep = "\n"+"#"*80+"\n"sep418,13565
+    nref = args.nrefnref420,13593
+    mesh = dl.Mesh(args.mesh)mesh422,13615
+        mesh = dl.refine(mesh)mesh424,13671
+    rank = dl.MPI.rank(mesh.mpi_comm())rank426,13703
+    nproc = dl.MPI.size(mesh.mpi_comm())nproc427,13743
+    Vh = dl.FunctionSpace(mesh, "Lagrange", 2)Vh431,13909
+    ndofs = Vh.dim()ndofs432,13956
+    ic_expr = dl.Expression('min(0.5,exp(-100*(pow(x[0]-0.35,2) +  pow(x[1]-0.7,2))))', element=ic_expr439,14142
+    true_initial_condition = dl.interpolate(ic_expr, Vh).vector()true_initial_condition440,14256
+    gamma = 1.gamma443,14328
+    delta = 8.delta444,14343
+    prior = BiLaplacianPrior(Vh, gamma, delta, robin_bc=True)prior445,14358
+    t_init         = 0.t_init452,14646
+    t_final        = 4.t_final453,14670
+    t_1            = 1.t_1454,14694
+    dt             = .1dt455,14718
+    observation_dt = .2observation_dt456,14742
+    simulation_times = np.arange(t_init, t_final+.5*dt, dt)simulation_times458,14771
+    observation_times = np.arange(t_1, t_final+.5*dt, observation_dt)observation_times459,14831
+    targets = np.loadtxt('targets.txt')targets461,14906
+    misfit = SpaceTimePointwiseStateObservation(Vh, observation_times, targets)misfit464,15042
+    wind_velocity = computeVelocityField(mesh)wind_velocity466,15127
+    problem = TimeDependentAD(mesh, [Vh,Vh,Vh], prior, misfit, simulation_times, wind_velocity, problem468,15175
+    rel_noise = 0.01rel_noise472,15360
+    utrue = problem.generate_vector(STATE)utrue473,15381
+    x = [utrue, true_initial_condition, None]x474,15424
+    MAX = misfit.d.norm("linf", "linf")MAX477,15536
+    noise_std_dev = rel_noise * MAXnoise_std_dev478,15576
+    m0 = true_initial_condition.copy()m0485,15825
+    mg = problem.generate_vector(PARAMETER)mg493,16152
+    grad_norm = problem.evalGradientParameter([u,m,p], mg)grad_norm494,16196
+    H = ReducedHessian(problem, misfit_only=True) H502,16440
+    k = 80k503,16491
+    p = 20p504,16502
+    Omega = MultiVector(x[PARAMETER], k+p)Omega508,16637
+    d, U = doublePassG(H, prior.R, prior.Rsolver, Omega, k, s=1, check=False)d511,16713
+    d, U = doublePassG(H, prior.R, prior.Rsolver, Omega, k, s=1, check=False)U511,16713
+    posterior = GaussianLRPosterior(prior, d, U)posterior512,16791
+        P = posterior.HlrP515,16858
+        P = prior.RsolverP517,16894
+    solver = CGSolverSteihaug()solver524,17030
+    total_cost, reg_cost, misfit_cost = problem.cost([u,m,p])total_cost534,17335
+    total_cost, reg_cost, misfit_cost = problem.cost([u,m,p])reg_cost534,17335
+    total_cost, reg_cost, misfit_cost = problem.cost([u,m,p])misfit_cost534,17335
+    compute_trace = Falsecompute_trace540,17555
+        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)post_tr542,17603
+        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)prior_tr542,17603
+        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)corr_tr542,17603
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Rapost_pw_variance545,17832
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Rapr_pw_variance545,17832
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Racorr_pw_variance545,17832
+    fid_prmean  = dl.XDMFFile(mesh.mpi_comm(), "results/pr_mean.xdmf")fid_prmean564,18766
+    nsamples = 50nsamples570,19004
+    noise = dl.Vector()noise571,19022
+    s_prior = dl.Function(Vh, name="sample_prior")s_prior573,19087
+    s_post = dl.Function(Vh, name="sample_post")s_post574,19138
+
+applications/ad_diff/ad_10k.xml,0
+
+applications/ad_diff/ad_20.xml,0
+
+applications/forward_uq/model_subsurf_effperm.py,2825
+import dolfin as dldl18,655
+import numpy as npnp24,795
+    import matplotlib.pyplot as pltplt27,820
+    has_plt = Truehas_plt28,856
+    has_plt = Falsehas_plt30,883
+class GammaCenter(dl.SubDomain):GammaCenter32,904
+    def inside(self, x, on_boundary):inside33,937
+def u_boundary(x, on_boundary):u_boundary36,1024
+def v_boundary(x, on_boundary):v_boundary39,1138
+def true_model(Vh, gamma, delta, anis_diff):true_model42,1252
+    parser = argparse.ArgumentParser(description='Model Subsurface')parser53,1592
+    args = parser.parse_args()args66,2159
+    sep = "\n"+"#"*80+"\n"sep68,2219
+    ndim = 2ndim69,2246
+    nx = args.nxnx70,2259
+    ny = args.nyny71,2276
+    mesh = dl.UnitSquareMesh(nx, ny)mesh74,2347
+    rank = dl.MPI.rank(mesh.mpi_comm())rank76,2389
+    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 2)Vh278,2438
+    Vh1 = dl.FunctionSpace(mesh, 'Lagrange', 1)Vh179,2486
+    Vh = [Vh2, Vh1, Vh2]Vh80,2534
+    ndofs = [Vh[STATE].dim(), Vh[PARAMETER].dim(), Vh[ADJOINT].dim()]ndofs81,2559
+    f = dl.Constant(0.0)f87,2839
+    u_bdr = dl.Expression("x[1]", degree=1)u_bdr89,2873
+    u_bdr0 = dl.Constant(0.0)u_bdr090,2917
+    bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)bc91,2947
+    bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)bc092,3001
+    def pde_varf(u,m,p):pde_varf94,3062
+    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)pde97,3174
+    gamma = .1gamma106,3715
+    delta = .5delta107,3730
+    theta0 = 2.theta0109,3750
+    theta1 = .5theta1110,3766
+    alpha  = math.pi/4alpha111,3782
+    anis_diff = dl.CompiledExpression(ExpressionModule.AnisTensor2D(), degree = 1)anis_diff113,3810
+    mtrue = true_model(Vh[PARAMETER], gamma, delta,anis_diff)mtrue115,3934
+    locations = np.array([[0.1, 0.1], [0.1, 0.9], [.5,.5], [.9, .1], [.9, .9]])locations117,3997
+    pen = 1e1pen119,4078
+    prior = MollifiedBiLaplacianPrior(Vh[PARAMETER], gamma, delta, locations, mtrue, anis_diff, prior120,4092
+    GC = GammaCenter()GC125,4360
+    marker = dl.MeshFunction("size_t", mesh, mesh.topology().dim()-1)marker126,4383
+    dss = dl.Measure("dS", domain=mesh, subdomain_data=marker)dss129,4498
+    n = dl.Constant((0.,1.))#dl.FacetNormal(Vh[STATE].mesh())n130,4561
+    def qoi_varf(u,m):qoi_varf132,4624
+    qoi = VariationalQoi(Vh,qoi_varf) qoi135,4716
+    p2qoimap = Parameter2QoiMap(pde, qoi)p2qoimap136,4755
+    k = 100    k141,4929
+    Omega = MultiVector(prior.mean, k)Omega142,4945
+    q_taylor = TaylorApproximationQoi(p2qoimap, prior)q_taylor145,5021
+    e_lin  = q_taylor.expectedValue(order=1)e_lin151,5188
+    e_quad = q_taylor.expectedValue(order=2)e_quad152,5233
+    v_lin  = q_taylor.variance(order=1)v_lin153,5278
+    v_quad = q_taylor.variance(order=1)v_quad154,5318
+
+applications/mcmc/model_subsurf.py,4359
+import dolfin as dldl16,627
+import numpy as npnp19,670
+import matplotlib.pyplot as pltplt20,689
+class FluxQOI(object):FluxQOI28,848
+    def __init__(self, Vh, dsGamma):__init__29,871
+    def form(self, x):form38,1113
+    def eval(self, x):eval42,1326
+class GammaBottom(dl.SubDomain):GammaBottom51,1651
+    def inside(self, x, on_boundary):inside52,1684
+def u_boundary(x, on_boundary):u_boundary55,1775
+def v_boundary(x, on_boundary):v_boundary58,1889
+def true_model(Vh, gamma, delta, anis_diff):true_model61,2003
+    parser = argparse.ArgumentParser(description='Model Subsurface')parser72,2343
+    args = parser.parse_args()args85,2912
+    sep = "\n"+"#"*80+"\n"sep90,3010
+    ndim = 2ndim91,3037
+    nx = args.nx  nx92,3050
+    ny = args.nyny93,3069
+    mesh = dl.UnitSquareMesh(nx, ny)mesh94,3086
+    rank = dl.MPI.rank(mesh.mpi_comm())rank96,3128
+    nproc = dl.MPI.size(mesh.mpi_comm())nproc97,3168
+    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 2)Vh299,3218
+    Vh1 = dl.FunctionSpace(mesh, 'Lagrange', 1)Vh1100,3266
+    Vh = [Vh2, Vh1, Vh2]Vh101,3314
+    ndofs = [Vh[STATE].dim(), Vh[PARAMETER].dim(), Vh[ADJOINT].dim()]ndofs103,3344
+    f = dl.Constant(0.0)f109,3628
+    u_bdr = dl.Expression("x[1]", degree = 1)u_bdr111,3662
+    u_bdr0 = dl.Constant(0.0)u_bdr0112,3708
+    bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)bc113,3738
+    bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)bc0114,3792
+    def pde_varf(u,m,p):pde_varf116,3853
+    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)pde119,3965
+    ntargets = 300ntargets129,4503
+    targets = np.random.uniform(0.1,0.9, [ntargets, ndim] )targets131,4549
+    misfit = PointwiseStateObservation(Vh[STATE], targets)misfit134,4697
+    gamma = .1gamma137,4766
+    delta = .5delta138,4781
+    theta0 = 2.theta0140,4801
+    theta1 = .5theta1141,4817
+    alpha  = math.pi/4alpha142,4833
+    anis_diff = dl.CompiledExpression(ExpressionModule.AnisTensor2D(), degree = 1)anis_diff144,4861
+    mtrue = true_model(Vh[PARAMETER], gamma, delta,anis_diff)mtrue147,4990
+    prior = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, anis_diff, robin_bc=True)prior149,5061
+    utrue = pde.generate_state()utrue155,5360
+    x = [utrue, mtrue, None]x156,5393
+    rel_noise = 0.01rel_noise159,5490
+    MAX = misfit.d.norm("linf")MAX160,5511
+    noise_std_dev = rel_noise * MAXnoise_std_dev161,5543
+    model = Model(pde,prior, misfit)model165,5694
+    m = prior.mean.copy()m169,5809
+    parameters = ReducedSpaceNewtonCG_ParameterList()parameters170,5835
+    solver = ReducedSpaceNewtonCG(model, parameters)solver178,6131
+    x = solver.solve([None, m, None])x180,6189
+    Hmisfit = ReducedHessian(model, misfit_only=True)Hmisfit194,6724
+    k = 50k195,6778
+    p = 20p196,6789
+    Omega = MultiVector(x[PARAMETER], k+p)Omega200,6924
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=2, check = False)d203,7008
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=2, check = False)U203,7008
+    nu = GaussianLRPosterior(prior, d, U)nu205,7113
+    GC = GammaBottom()GC209,7205
+    marker = dl.MeshFunction("size_t", mesh, 1)marker210,7228
+    dss = dl.Measure("ds", subdomain_data=marker)dss213,7321
+    qoi = FluxQOI(Vh,dss(1))qoi214,7371
+    kMALA = MALAKernel(model)kMALA216,7405
+    kpCN = pCNKernel(model)kpCN219,7481
+    kgpCN = gpCNKernel(model,nu)kgpCN222,7547
+    kIS = ISKernel(model,nu)kIS225,7617
+    noise = dl.Vector()noise227,7651
+    pr_s = model.generate_vector(PARAMETER)pr_s230,7742
+    post_s = model.generate_vector(PARAMETER)post_s231,7786
+        fid_m = dl.XDMFFile("results/"+kernel.name()+"/parameter.xdmf")fid_m240,8016
+        fid_u = dl.XDMFFile("results/"+kernel.name()+"/state.xdmf")fid_u243,8202
+        chain = MCMC(kernel)chain246,8384
+        tracer = FullTracer(chain.parameters["number_of_samples"], Vh, fid_m, fid_u)tracer250,8575
+        n_accept = chain.run(post_s, qoi, tracer)n_accept254,8740
+        iact, lags, acoors = integratedAutocorrelationTime(tracer.data[:,0])iact256,8799
+        iact, lags, acoors = integratedAutocorrelationTime(tracer.data[:,0])lags256,8799
+        iact, lags, acoors = integratedAutocorrelationTime(tracer.data[:,0])acoors256,8799
+
+applications/poisson/model_continuous_obs.py,3218
+import dolfin as dldl16,627
+import numpy as npnp18,658
+import matplotlib.pyplot as pltplt19,677
+def u_boundary(x, on_boundary):u_boundary28,837
+class Poisson:Poisson31,893
+    def __init__(self, mesh, Vh, prior):__init__32,908
+    def generate_vector(self, component="ALL"):generate_vector78,2682
+    def init_parameter(self, m):init_parameter105,3694
+    def assembleA(self,x, assemble_adjoint = False, assemble_rhs = False):assembleA111,3867
+    def assembleC(self, x):assembleC134,4869
+    def assembleWuu(self):assembleWuu148,5485
+    def assembleWmu(self, x):assembleWmu162,5888
+    def assembleWmm(self, x):assembleWmm177,6471
+    def computeObservation(self, u_o):computeObservation190,7030
+    def cost(self, x):cost204,7462
+    def solveFwd(self, out, x):solveFwd229,8297
+    def solveAdj(self, out, x):solveAdj240,8548
+    def evalGradientParameter(self,x, mg, misfit_only=False):evalGradientParameter252,8937
+    def setPointForHessianEvaluations(self, x, gauss_newton_approx=False):  setPointForHessianEvaluations281,9919
+    def solveFwdIncremental(self, sol, rhs):solveFwdIncremental301,10657
+    def solveAdjIncremental(self, sol, rhs):solveAdjIncremental308,10874
+    def applyC(self, dm, out):applyC316,11177
+    def applyCt(self, dp, out):applyCt319,11241
+    def applyWuu(self, du, out, gn_approx=False):applyWuu322,11312
+    def applyWum(self, dm, out):applyWum325,11398
+    def applyWmu(self, du, out):applyWmu332,11551
+    def applyR(self, dm, out):applyR338,11698
+    def Rsolver(self):        Rsolver341,11773
+    def applyWmm(self, dm, out):applyWmm344,11843
+    parser = argparse.ArgumentParser(description='Model Continuous observations')parser351,12025
+    args = parser.parse_args()args360,12443
+    nx = args.nxnx365,12541
+    ny = args.nyny366,12558
+    mesh = dl.UnitSquareMesh(nx, ny)mesh367,12575
+    rank = dl.MPI.rank(mesh.mpi_comm())rank369,12617
+    nproc = dl.MPI.size(mesh.mpi_comm())nproc370,12657
+    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 2)Vh2372,12707
+    Vh1 = dl.FunctionSpace(mesh, 'Lagrange', 1)Vh1373,12755
+    Vh = [Vh2, Vh1, Vh2]Vh374,12803
+    prior = LaplacianPrior(Vh[PARAMETER], gamma=1e-8, delta=1e-9)prior376,12833
+    model = Poisson(mesh, Vh, prior)model377,12899
+    m0 = dl.interpolate(dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element()), Vh[PARAm0379,12945
+    m0 = dl.interpolate(dl.Constant(0.0),Vh[PARAMETER])m0382,13129
+    parameters = ReducedSpaceNewtonCG_ParameterList()parameters383,13185
+    solver = ReducedSpaceNewtonCG(model, parameters)solver392,13490
+    x = solver.solve([None, m0.vector(), None])x395,13549
+    Hmisfit = ReducedHessian(model, misfit_only=True)Hmisfit408,14038
+    p = 20p409,14092
+    k = 50k410,14103
+    Omega = MultiVector(x[PARAMETER], k+p)Omega411,14114
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)d414,14190
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)U414,14190
+    xxname = ["state", "parameter", "adjoint"]xxname416,14279
+    xx = [vector2Function(x[i], Vh[i], name=xxname[i]) for i in range(len(Vh))]xx417,14326
+
+applications/poisson/model_subsurf.py,4207
+import dolfin as dldl16,627
+import numpy as npnp19,670
+import matplotlib.pyplot as pltplt20,689
+def u_boundary(x, on_boundary):u_boundary29,849
+def v_boundary(x, on_boundary):v_boundary32,963
+def true_model(prior):true_model35,1077
+    parser = argparse.ArgumentParser(description='Model Subsurface')parser45,1336
+    args = parser.parse_args()args58,1936
+    sep = "\n"+"#"*80+"\n"sep63,2034
+    ndim = 2ndim64,2061
+    nx = args.nxnx65,2074
+    ny = args.nyny66,2091
+    mesh = dl.UnitSquareMesh(nx, ny)mesh67,2108
+    rank = dl.MPI.rank(mesh.mpi_comm())rank69,2150
+    nproc = dl.MPI.size(mesh.mpi_comm())nproc70,2190
+    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 2)Vh272,2244
+    Vh1 = dl.FunctionSpace(mesh, 'Lagrange', 1)Vh173,2292
+    Vh = [Vh2, Vh1, Vh2]Vh74,2340
+    ndofs = [Vh[STATE].dim(), Vh[PARAMETER].dim(), Vh[ADJOINT].dim()]ndofs76,2370
+    f = dl.Constant(0.0)f82,2650
+    u_bdr = dl.Expression("x[1]", element = Vh[STATE].ufl_element() )u_bdr84,2684
+    u_bdr0 = dl.Constant(0.0)u_bdr085,2754
+    bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)bc86,2784
+    bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)bc087,2838
+    def pde_varf(u,m,p):pde_varf89,2899
+    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)pde92,3011
+    ntargets = 50ntargets103,3557
+    targets_x = np.random.uniform(0.1,0.9, [ntargets] )targets_x106,3634
+    targets_y = np.random.uniform(0.1,0.5, [ntargets] )targets_y107,3690
+    targets = np.zeros([ntargets, ndim])targets108,3746
+    misfit = PointwiseStateObservation(Vh[STATE], targets)misfit115,4018
+    gamma = .1gamma117,4082
+    delta = .5delta118,4097
+    theta0 = 2.theta0120,4117
+    theta1 = .5theta1121,4133
+    alpha  = math.pi/4alpha122,4149
+    anis_diff = dl.CompiledExpression(ExpressionModule.AnisTensor2D(), degree = 1)anis_diff124,4177
+    prior = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, anis_diff, robin_bc=True )prior127,4306
+    mtrue = true_model(prior)mtrue129,4396
+    utrue = pde.generate_state()utrue135,4646
+    x = [utrue, mtrue, None]x136,4679
+    rel_noise = 0.01rel_noise139,4776
+    MAX = misfit.d.norm("linf")MAX140,4797
+    noise_std_dev = rel_noise * MAXnoise_std_dev141,4829
+    model = Model(pde,prior, misfit)model145,4980
+    m0 = dl.interpolate(dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARm0150,5121
+    m = prior.mean.copy()m155,5374
+    parameters = ReducedSpaceNewtonCG_ParameterList()parameters156,5400
+    solver = ReducedSpaceNewtonCG(model, parameters)solver167,5751
+    x = solver.solve([None, m, None])x169,5809
+    Hmisfit = ReducedHessian(model, misfit_only=True)Hmisfit185,6406
+    k = 50k186,6460
+    p = 20p187,6471
+    Omega = MultiVector(x[PARAMETER], k+p)Omega191,6606
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)d194,6682
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)U194,6682
+    posterior = GaussianLRPosterior(prior, d, U)posterior195,6766
+    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)post_tr199,6859
+    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)prior_tr199,6859
+    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)corr_tr199,6859
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Rapost_pw_variance203,7076
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Rapr_pw_variance203,7076
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Racorr_pw_variance203,7076
+    kl_dist = posterior.klDistanceFromPrior()kl_dist205,7199
+    xxname = ["state", "parameter", "adjoint"]xxname219,7885
+    xx = [vector2Function(x[i], Vh[i], name=xxname[i]) for i in range(len(Vh))]xx220,7932
+    nsamples = args.nsamplesnsamples238,8788
+    noise = dl.Vector()noise239,8817
+    s_prior = dl.Function(Vh[PARAMETER], name="sample_prior")s_prior241,8882
+    s_post = dl.Function(Vh[PARAMETER], name="sample_post")s_post242,8944
+
+applications/poisson/model_subsurf_multNoise.py,4102
+import dolfin as dldl16,627
+import numpy as npnp19,670
+import matplotlib.pyplot as pltplt20,689
+def u_boundary(x, on_boundary):u_boundary29,849
+def v_boundary(x, on_boundary):v_boundary32,963
+def true_model(prior):true_model35,1077
+    parser = argparse.ArgumentParser(description='Model Subsurface')parser45,1336
+    args = parser.parse_args()args58,1936
+    sep = "\n"+"#"*80+"\n"sep63,2034
+    ndim = 2ndim64,2061
+    nx = args.nxnx65,2074
+    ny = args.nyny66,2091
+    mesh = dl.UnitSquareMesh(nx, ny)mesh67,2108
+    rank = dl.MPI.rank(mesh.mpi_comm())rank69,2150
+    nproc = dl.MPI.size(mesh.mpi_comm())nproc70,2190
+    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 2)Vh272,2244
+    Vh1 = dl.FunctionSpace(mesh, 'Lagrange', 1)Vh173,2292
+    Vh = [Vh2, Vh1, Vh2]Vh74,2340
+    ndofs = [Vh[STATE].dim(), Vh[PARAMETER].dim(), Vh[ADJOINT].dim()]ndofs76,2370
+    f = dl.Constant(0.0)f82,2650
+    u_bdr = dl.Expression("x[1]", element = Vh[STATE].ufl_element() )u_bdr84,2684
+    u_bdr0 = dl.Constant(0.0)u_bdr085,2754
+    bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)bc86,2784
+    bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)bc087,2838
+    def pde_varf(u,m,p):pde_varf89,2899
+    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)pde92,3011
+    ntargets = 50ntargets103,3557
+    targets_x = np.random.uniform(0.1,0.9, [ntargets] )targets_x106,3634
+    targets_y = np.random.uniform(0.1,0.5, [ntargets] )targets_y107,3690
+    targets = np.zeros([ntargets, ndim])targets108,3746
+    Mpar = 1e4Mpar115,4018
+    misfit = MultPointwiseStateObservation(Vh[STATE], targets, Mpar)misfit116,4033
+    gamma = .1gamma118,4107
+    delta = .5delta119,4122
+    theta0 = 2.theta0121,4142
+    theta1 = .5theta1122,4158
+    alpha  = math.pi/4alpha123,4174
+    anis_diff = dl.CompiledExpression(ExpressionModule.AnisTensor2D(), degree = 1)anis_diff125,4202
+    prior = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, anis_diff, robin_bc=True )prior128,4331
+    mtrue = true_model(prior)mtrue130,4421
+    utrue = pde.generate_state()utrue136,4671
+    x = [utrue, mtrue, None]x137,4704
+    model = Model(pde,prior, misfit)model148,4920
+    m0 = dl.interpolate(dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARm0153,5061
+    m = prior.mean.copy()m158,5332
+    parameters = ReducedSpaceNewtonCG_ParameterList()parameters159,5358
+    solver = ReducedSpaceNewtonCG(model, parameters)solver170,5709
+    x = solver.solve([None, m, None])x172,5767
+    Hmisfit = ReducedHessian(model, misfit_only=True)Hmisfit188,6364
+    k = 50k189,6418
+    p = 20p190,6429
+    Omega = MultiVector(x[PARAMETER], k+p)Omega194,6564
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)d197,6640
+    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)U197,6640
+    posterior = GaussianLRPosterior(prior, d, U)posterior198,6724
+    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)post_tr202,6817
+    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)prior_tr202,6817
+    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)corr_tr202,6817
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Rapost_pw_variance206,7034
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Rapr_pw_variance206,7034
+    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Racorr_pw_variance206,7034
+    kl_dist = posterior.klDistanceFromPrior()kl_dist208,7157
+    xxname = ["state", "parameter", "adjoint"]xxname222,7843
+    xx = [vector2Function(x[i], Vh[i], name=xxname[i]) for i in range(len(Vh))]xx223,7890
+    nsamples = args.nsamplesnsamples241,8746
+    noise = dl.Vector()noise242,8775
+    s_prior = dl.Function(Vh[PARAMETER], name="sample_prior")s_prior244,8840
+    s_post = dl.Function(Vh[PARAMETER], name="sample_post")s_post245,8902
+
+paper/paper.md,103
+# SummarySummary29,867
+# AcknowledgementsAcknowledgements105,5261
+# ReferencesReferences109,5878
+
+paper/paper.bib,382
+@article{VillaPetraGhattas18,VillaPetraGhattas181,0
+@book{LangtangenLogg17,LangtangenLogg178,330
+@Book{LoggMardalGarth12,LoggMardalGarth1217,556
+@Article{LoggWells10,LoggWells1027,1001
+@Article{Bui-ThanhGhattasMartinEtAl13,Bui-ThanhGhattasMartinEtAl1338,1447
+@Article{PetraMartinStadlerEtAl14,PetraMartinStadlerEtAl1449,2050
+@Misc{petsc-web-page,petsc-web-page60,2637
+
+tutorial/.ipynb_checkpoints/1_FEniCS101-checkpoint.ipynb,0
+
+tutorial/.ipynb_checkpoints/2_PoissonDeterministic-checkpoint.ipynb,0
+
+tutorial/targets.txt,0
+
+tutorial/7_GaussianPriors.ipynb,0
+
+tutorial/3_SubsurfaceBayesian.ipynb,0
+
+tutorial/1_FEniCS101.ipynb,0
+
+tutorial/4_AdvectionDiffusionBayesian.ipynb,0
+
+tutorial/2_PoissonDeterministic.ipynb,0
+
+tutorial/ad_20.xml,0
+
+tutorial/5_HessianSpectrum.ipynb,0
+
+tutorial/README,0
+
+COPYRIGHT,0
